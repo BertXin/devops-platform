@@ -1,0 +1,26 @@
+[gitlab]
+address = "https://gitlab.corp.yatsenglobal.com"
+private_token = "HmBPDkAC-NWx5Ro4GWUs"
+hook_url = "https://testing-api-devops.corp.yatsenglobal.com"
+hook_secret = "abc"
+[tapd]
+companyId = "40296318"
+account = "ou#wok4Q"
+token = "85DC09B1-BD25-33EB-3E89-259DF8F508D7"
+
+[database]
+host = "127.0.0.1"
+port = 3306
+user = "root"
+password = "root"
+db = "skynetcl"
+max_open = 5
+max_idle = 2
+
+
+[app]
+addr = ":80"
+env = "dev"
+
+[log]
+level = "debug"
