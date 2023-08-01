@@ -40,3 +40,11 @@ func TestCreate(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestRepository_GetByID(t *testing.T) {
+	user, err := r.GetByID(context.TODO(), 7)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(user)
+}

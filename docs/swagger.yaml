@@ -1,0 +1,83 @@
+basePath: /
+definitions:
+  domain.User:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      email:
+        type: string
+      enable:
+        description: 1：启用   0：禁用
+        type: integer
+      gitlab_user_id:
+        type: integer
+      id:
+        type: string
+      last_modified_at:
+        type: string
+      last_modified_by:
+        type: string
+      mobile:
+        type: string
+      name:
+        type: string
+      org_display_name:
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/enum.SysRole'
+        description: 0:普通用户，1:管理员，2:虚拟用户
+      username:
+        type: string
+      wx_work_user_id:
+        type: string
+    type: object
+  enum.SysRole:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - SysRoleGeneralUser
+    - SysRoleAdminUser
+    - SysRoleVirtualUser
+    - SysRoleOmsUser
+host: 127.0.0.1
+info:
+  contact:
+    email: xin.zhang@hicom.com
+    name: zhangxin
+  description: 运维系统 api.
+  title: 运维系统
+  version: "2.0"
+paths:
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+      summary: 获取用户信息
+      tags:
+      - user
+schemes:
+- http
+- https
+swagger: "2.0"

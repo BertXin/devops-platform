@@ -36,13 +36,22 @@ func (c *Controller) injectService(getBean func(string) interface{}) {
 	c.Service = s
 }
 
+// @Summary 获取用户信息
+// @Tags user
+// @Accept json
+// @Produce  json
+// @Param id path int64 true "用户ID"
+// @Success 200 {object} domain.User
+// @Router /user/{id} [get]
 func (c *Controller) GetByID(ctx *gin.Context) {
 	id, err := c.GetLongParam(ctx, "id")
 	if err != nil {
 		c.ReturnErr(ctx, common.RequestParamError("入参[用户ID]解析失败", err))
 		return
 	}
-	user, err := c.UserQuery.GetByID(c.GetContext(ctx), id)
+
+	user, err := c.Service.GetByID(c.GetContext(ctx), id)
+
 	if err != nil {
 		c.ReturnErr(ctx, common.ServiceError(500, err))
 		return
@@ -52,6 +61,32 @@ func (c *Controller) GetByID(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
+}
+
+// @Summary 创建用户
+// @Tags user
+// @Accept json
+// @Produce  json
+// @Param id path int64 true "用户ID"
+// @Success 200 {object} domain.User
+// @Router /user/{id} [put]
+func (c *Controller) Create(ctx *gin.Context) {
+	var (
+		err error
+		//id  types.Long
+	)
+
+	command := new(domain.CreateUserCommand)
+	if err = ctx.ShouldBindJSON(command); err != nil {
+		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
+		return
+	}
+	id, err := c.Service.Create(ctx, command)
+	if err != nil {
+		c.ReturnErr(ctx, common.ServiceError(500, err))
+		return
+	}
+	ctx.JSON(http.StatusOK, id)
 }
 
 type FindByNameAndMobileQuery struct {
