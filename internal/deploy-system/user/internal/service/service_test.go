@@ -27,7 +27,7 @@ func init() {
 func TestService_Create(t *testing.T) {
 	ctx := context.TODO()
 	command := &user.CreateUserCommand{
-		Username:     "130xxafewrwqx",
+		Username:     "130",
 		Name:         "吴不",
 		Mobile:       "req",
 		Email:        "xin.zhang@yatsenglobal.com",

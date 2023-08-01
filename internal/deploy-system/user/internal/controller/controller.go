@@ -19,8 +19,9 @@ type Controller struct {
 }
 
 func (c *Controller) injectQuery(getBean func(string) interface{}) {
+
 	userQuery, ok := getBean(domain.BeanRepository).(*repository.Repository)
-	if ok {
+	if !ok {
 		logrus.Panicf("初始化时获取[%s]失败", domain.BeanRepository)
 		return
 	}
@@ -49,8 +50,7 @@ func (c *Controller) GetByID(ctx *gin.Context) {
 		c.ReturnErr(ctx, common.RequestParamError("入参[用户ID]解析失败", err))
 		return
 	}
-
-	user, err := c.Service.GetByID(c.GetContext(ctx), id)
+	user, err := c.UserQuery.GetByID(c.GetContext(ctx), id)
 
 	if err != nil {
 		c.ReturnErr(ctx, common.ServiceError(500, err))
@@ -63,13 +63,6 @@ func (c *Controller) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-// @Summary 创建用户
-// @Tags user
-// @Accept json
-// @Produce  json
-// @Param id path int64 true "用户ID"
-// @Success 200 {object} domain.User
-// @Router /user/{id} [put]
 func (c *Controller) Create(ctx *gin.Context) {
 	var (
 		err error
@@ -101,7 +94,15 @@ type FindByNameAndMobileResponse struct {
 	Total   int64         `json:"total" `   //总数
 }
 
-//根据名称查询用户信息
+// @Summary 根据名称查询用户信息
+// @Tags user
+// @Accept json
+// @Produce  json
+// @Param name query string false "用户名称"
+// @Param page_size query string false "每页数据条数"
+// @Param page query string false "第几页"
+// @Success 200 {object} FindByNameAndMobileResponse
+// @Router /user [get]
 func (c *Controller) FindByName(ctx *gin.Context) {
 	var query FindByNameAndMobileQuery
 
@@ -121,7 +122,7 @@ func (c *Controller) FindByName(ctx *gin.Context) {
 	})
 }
 
-//更新用户角色信息
+// 更新用户角色信息
 func (c *Controller) ModifyUserRoleByID(ctx *gin.Context) {
 
 	id, err := c.GetLongParam(ctx, "id")
@@ -145,7 +146,7 @@ func (c *Controller) ModifyUserRoleByID(ctx *gin.Context) {
 	c.ReturnModifySuccess(ctx)
 }
 
-//更新用户状态
+// 更新用户状态
 func (c *Controller) ModifyUserStatusByID(ctx *gin.Context) {
 	id, err := c.GetLongParam(ctx, "id")
 

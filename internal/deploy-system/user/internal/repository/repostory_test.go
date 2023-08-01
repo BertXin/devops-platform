@@ -42,7 +42,15 @@ func TestCreate(t *testing.T) {
 }
 
 func TestRepository_GetByID(t *testing.T) {
-	user, err := r.GetByID(context.TODO(), 7)
+	user, err := r.GetByID(context.TODO(), 103)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(user)
+}
+
+func TestRepository_GetByUsername(t *testing.T) {
+	user, err := r.GetByUsername(context.TODO(), "130")
 	if err != nil {
 		t.Fatal(err)
 	}

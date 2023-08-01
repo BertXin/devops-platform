@@ -6,6 +6,7 @@ import (
 	"devops-platform/internal/deploy-system/user/internal/domain"
 	"devops-platform/internal/pkg/enum"
 	"devops-platform/pkg/types"
+	"fmt"
 )
 
 /**
@@ -22,7 +23,8 @@ type Repository struct {
 //GetByID
 func (r *Repository) GetByID(ctx context.Context, ID types.Long) (user *domain.User, err error) {
 	user = new(domain.User)
-	err = r.DB(ctx).First(user, ID).Error
+	err = r.DB(ctx).First(user,ID).Error
+	fmt.Print(err)
 	if user.ID != ID {
 		user = nil
 	}

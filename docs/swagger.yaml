@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  controller.FindByNameAndMobileResponse:
+    properties:
+      records:
+        description: 记录
+        items:
+          $ref: '#/definitions/domain.User'
+        type: array
+      total:
+        description: 总数
+        type: integer
+    type: object
   domain.User:
     properties:
       avatar:
@@ -57,6 +68,33 @@ info:
   title: 运维系统
   version: "2.0"
 paths:
+  /user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户名称
+        in: query
+        name: name
+        type: string
+      - description: 每页数据条数
+        in: query
+        name: page_size
+        type: string
+      - description: 第几页
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.FindByNameAndMobileResponse'
+      summary: 根据名称查询用户信息
+      tags:
+      - user
   /user/{id}:
     get:
       consumes:
