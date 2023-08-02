@@ -51,7 +51,7 @@ definitions:
       email:
         type: string
       enable:
-        description: 1：启用   0：禁用
+        description: 1：启用   2：禁用
         type: integer
       gitlab_user_id:
         type: integer
@@ -81,13 +81,11 @@ definitions:
     - 0
     - 1
     - 2
-    - 3
     type: integer
     x-enum-varnames:
     - SysRoleGeneralUser
     - SysRoleAdminUser
     - SysRoleVirtualUser
-    - SysRoleOmsUser
 host: 127.0.0.1
 info:
   contact:
@@ -200,7 +198,7 @@ paths:
         name: id
         required: true
         type: integer
-      - description: 更新用户状态  1:启用  0：禁用
+      - description: 更新用户状态  1:启用  2：禁用
         in: body
         name: object
         required: true

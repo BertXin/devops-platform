@@ -189,7 +189,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "更新用户状态  1:启用  0：禁用",
+                        "description": "更新用户状态  1:启用  2：禁用",
                         "name": "object",
                         "in": "body",
                         "required": true,
@@ -287,7 +287,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "enable": {
-                    "description": "1：启用   0：禁用",
+                    "description": "1：启用   2：禁用",
                     "type": "integer"
                 },
                 "gitlab_user_id": {
@@ -332,14 +332,12 @@ const docTemplate = `{
             "enum": [
                 0,
                 1,
-                2,
-                3
+                2
             ],
             "x-enum-varnames": [
                 "SysRoleGeneralUser",
                 "SysRoleAdminUser",
-                "SysRoleVirtualUser",
-                "SysRoleOmsUser"
+                "SysRoleVirtualUser"
             ]
         }
     }

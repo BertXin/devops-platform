@@ -184,14 +184,12 @@ const (
 	SysRoleGeneralUser SysRole = 0
 	SysRoleAdminUser   SysRole = 1
 	SysRoleVirtualUser SysRole = 2
-	SysRoleOmsUser     SysRole = 3
 )
 
 var sysRole = map[SysRole]string{
 	SysRoleGeneralUser: "普通用户",
 	SysRoleAdminUser:   "管理员",
 	SysRoleVirtualUser: "虚拟用户",
-	SysRoleOmsUser:     "oms用户",
 }
 
 //操作
