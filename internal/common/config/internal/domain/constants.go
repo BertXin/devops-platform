@@ -5,4 +5,5 @@ const (
 	BeanDatabase = "config-database"
 	BeanLog      = "config-log"
 	BeanApp      = "config-app"
+	BeanTekton   = "config-tekton"
 )

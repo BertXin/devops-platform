@@ -24,3 +24,6 @@ env = "dev"
 
 [log]
 level = "debug"
+
+[k8s]
+expiration_option = [2,4,8,12,24]
