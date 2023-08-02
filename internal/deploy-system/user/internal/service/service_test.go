@@ -43,3 +43,22 @@ func TestService_Create(t *testing.T) {
 	fmt.Print("创建用户成功,ID:", id)
 
 }
+
+func TestService_ModifyUserByID(t *testing.T) {
+	m := &domain.ModifyUserCommand{
+		ID:           1,
+		Username:     "zhangxin",
+		Name:         "zhangxin",
+		Mobile:       "zhangxin",
+		Email:        "zhangxin",
+		Avatar:       "zhangxin",
+		WxWorkUserID: "zhangxin",
+		GitlabUserID: 3,
+		Role:         enum.SysRoleVirtualUser,
+	}
+	err := s.ModifyUserByID(context.TODO(), m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("成功")
+}

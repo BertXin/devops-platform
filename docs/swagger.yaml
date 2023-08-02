@@ -11,6 +11,35 @@ definitions:
         description: 总数
         type: integer
     type: object
+  domain.CreateUserCommand:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      mobile:
+        type: string
+      name:
+        type: string
+      org_display_name:
+        type: string
+      role:
+        $ref: '#/definitions/enum.SysRole'
+      username:
+        type: string
+      wx_work_user_id:
+        type: string
+    type: object
+  domain.ModifyUserRoleCommand:
+    properties:
+      role:
+        $ref: '#/definitions/enum.SysRole'
+    type: object
+  domain.ModifyUserStatusCommand:
+    properties:
+      status:
+        type: integer
+    type: object
   domain.User:
     properties:
       avatar:
@@ -95,6 +124,26 @@ paths:
       summary: 根据名称查询用户信息
       tags:
       - user
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建用户
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateUserCommand'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: '{"id":"1", "msg": "create success"}'
+          schema:
+            type: string
+      summary: 创建用户
+      tags:
+      - user
   /user/{id}:
     get:
       consumes:
@@ -113,6 +162,60 @@ paths:
           schema:
             $ref: '#/definitions/domain.User'
       summary: 获取用户信息
+      tags:
+      - user
+  /user/{id}/role:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新用户角色信息
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ModifyUserRoleCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"msg": "modify success"}'
+          schema:
+            type: object
+      summary: 更新用户角色信息
+      tags:
+      - user
+  /user/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新用户状态  1:启用  0：禁用
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ModifyUserStatusCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"msg": "modify success"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 更新用户状态
       tags:
       - user
 schemes:

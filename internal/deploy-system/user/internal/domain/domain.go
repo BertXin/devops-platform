@@ -20,7 +20,7 @@ type User struct {
 	Avatar         string       `json:"avatar"`
 	WxWorkUserID   string       `json:"wx_work_user_id"`
 	GitlabUserID   int          `json:"gitlab_user_id"`
-	Enable         enum.Enable  `json:"enable"` //1：启用   0：禁用
+	Enable         enum.Enable  `json:"enable"` //1：启用   2：禁用
 }
 
 func (u *User) VO() module.User {

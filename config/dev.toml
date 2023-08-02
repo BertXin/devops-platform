@@ -9,11 +9,11 @@ account = "ou#wok4Q"
 token = "85DC09B1-BD25-33EB-3E89-259DF8F508D7"
 
 [database]
-host = "192.168.124.19"
+host = "localhost"
 port = 3306
 user = "root"
-password = "123456"
-db = "devops_platform"
+password = "root"
+db = "skynetcl"
 max_open = 5
 max_idle = 2
 

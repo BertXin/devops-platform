@@ -123,7 +123,7 @@ func (s *Service) ModifyUserRoleByID(ctx context.Context, command domain.ModifyU
 	/*
 	 * 参数判断
 	 */
-	if command.Role.ValidRole() {
+	if !command.Role.ValidRole() {
 		common.RequestParamError("", errors.New("角色取值不正确"))
 		return
 	}

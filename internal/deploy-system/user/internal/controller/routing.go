@@ -8,6 +8,7 @@ import (
 
 func (c *Controller) Inject(getBean func(string) interface{}) {
 	c.injectQuery(getBean)
+	c.injectService(getBean)
 	c.injectRouting(getBean)
 }
 
@@ -23,6 +24,7 @@ func (c *Controller) injectRouting(getBean func(string) interface{}) {
 		routes.GET("", c.FindByName)
 		routes.GET("/:id", c.GetByID)
 
+		routes.POST("", c.CreateUser)
 		routes.PATCH("/:id/role", c.ModifyUserRoleByID)
 		routes.PATCH("/:id/status", c.ModifyUserStatusByID)
 	}

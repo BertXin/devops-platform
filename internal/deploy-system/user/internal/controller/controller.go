@@ -29,12 +29,12 @@ func (c *Controller) injectQuery(getBean func(string) interface{}) {
 }
 
 func (c *Controller) injectService(getBean func(string) interface{}) {
-	s, ok := getBean(domain.BeanService).(*service.Service)
+	service, ok := getBean(domain.BeanService).(*service.Service)
 	if !ok {
 		logrus.Panicf("初始化时获取[%s]失败", domain.BeanService)
 		return
 	}
-	c.Service = s
+	c.Service = service
 }
 
 // @Summary 获取用户信息
@@ -50,7 +50,7 @@ func (c *Controller) GetByID(ctx *gin.Context) {
 		c.ReturnErr(ctx, common.RequestParamError("入参[用户ID]解析失败", err))
 		return
 	}
-	user, err := c.UserQuery.GetByID(c.GetContext(ctx), id)
+	user, err := c.Service.GetByID(c.GetContext(ctx), id)
 
 	if err != nil {
 		c.ReturnErr(ctx, common.ServiceError(500, err))
@@ -63,18 +63,22 @@ func (c *Controller) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (c *Controller) Create(ctx *gin.Context) {
-	var (
-		err error
-		//id  types.Long
-	)
+// @Summary 创建用户
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param object body domain.CreateUserCommand true "创建用户"
+// @Success 201 string string "{"id":"1", "msg": "create success"}"
+// @Router /user [post]
+func (c *Controller) CreateUser(ctx *gin.Context) {
 
-	command := new(domain.CreateUserCommand)
-	if err = ctx.ShouldBindJSON(command); err != nil {
+	var command domain.CreateUserCommand
+	if err := ctx.ShouldBindJSON(&command); err != nil {
 		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
 		return
 	}
-	id, err := c.Service.Create(ctx, command)
+	id, err := c.Service.Create(ctx, &command)
+
 	if err != nil {
 		c.ReturnErr(ctx, common.ServiceError(500, err))
 		return
@@ -122,7 +126,14 @@ func (c *Controller) FindByName(ctx *gin.Context) {
 	})
 }
 
-// 更新用户角色信息
+// @Summary 更新用户角色信息
+// @Tags user
+// @Accept json
+// @Produce  json
+// @Param id path int64 true "用户ID"
+// @Param object body domain.ModifyUserRoleCommand true "更新用户角色信息"
+// @Success 200 object object "{"msg": "modify success"}"
+// @Router /user/{id}/role [patch]
 func (c *Controller) ModifyUserRoleByID(ctx *gin.Context) {
 
 	id, err := c.GetLongParam(ctx, "id")
@@ -146,7 +157,15 @@ func (c *Controller) ModifyUserRoleByID(ctx *gin.Context) {
 	c.ReturnModifySuccess(ctx)
 }
 
-// 更新用户状态
+// @Summary 更新用户状态
+// @Tags user
+// @Accept json
+// @Produce  json
+// @Param id path int64 true "用户ID"
+// @Param object body domain.ModifyUserStatusCommand true "更新用户状态  1:启用  2：禁用"
+// @Success 200 object object "{"msg": "modify success"}"
+// @Router /user/{id}/status [patch]
+// @Security ApiKeyAuth
 func (c *Controller) ModifyUserStatusByID(ctx *gin.Context) {
 	id, err := c.GetLongParam(ctx, "id")
 
