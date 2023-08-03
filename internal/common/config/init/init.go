@@ -26,4 +26,5 @@ func init() {
 	beans.Register(domain.BeanLog, &conf.Log)
 	beans.Register(domain.BeanApp, &conf.App)
 	beans.Register(domain.BeanTekton, &conf.Tekton)
+	beans.Register(domain.BeanSsoLogin, &conf.Sso)
 }

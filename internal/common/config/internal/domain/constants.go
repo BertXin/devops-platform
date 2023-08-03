@@ -6,4 +6,5 @@ const (
 	BeanLog      = "config-log"
 	BeanApp      = "config-app"
 	BeanTekton   = "config-tekton"
+	BeanSsoLogin = "config-sso"
 )

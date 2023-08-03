@@ -15,4 +15,5 @@ const (
 	BeanLog      = domain.BeanLog
 	BeanApp      = domain.BeanApp
 	BeanTekton   = domain.BeanTekton
+	BeanSsoLogin = domain.BeanSsoLogin
 )
