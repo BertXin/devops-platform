@@ -45,3 +45,5 @@ func (s *KeyCloakService) Login(ctx context.Context, username string, password s
 	}
 	return
 }
+func (s *KeyCloakService) GetaCodeURL() {
+}

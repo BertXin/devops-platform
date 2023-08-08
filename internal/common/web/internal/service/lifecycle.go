@@ -68,13 +68,27 @@ func (s *HttpServerLifecycle) PreInject(getBean func(string) interface{}) {
 	if cfg.GetEnv() == config.EnvProd {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	if cfg.GetEnv() == config.EnvTesting {
+		gin.SetMode(gin.TestMode)
+	}
 
 	router := gin.New()
-	router.Use(s.log, gin.Recovery(), cors.New(corsConfig()))
+
+	router.Use(s.log, gin.Recovery(),
+		func(c *gin.Context) {
+			logrus.Debugf("请求方法[%s],请求地址[%s]", c.Request.Method, c.Request.RequestURI)
+			cors.New(corsConfig())(c)
+		},
+	)
 	s.Server = &http.Server{
 		Addr:    cfg.GetServerAddress(),
 		Handler: router,
 	}
+
+	router.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
+	})
+	AddIgnoreUrls("/ping", "/favicon.ico")
 
 	beans.Register(domain.BeanGinEngine, router)
 

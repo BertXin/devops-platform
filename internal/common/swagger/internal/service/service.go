@@ -20,4 +20,6 @@ func (s *Swagger) Inject(getBean func(string) interface{}) {
 		return
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	web.AddIgnoreUrls("/swagger")
 }
