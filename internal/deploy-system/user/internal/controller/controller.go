@@ -186,3 +186,29 @@ func (c *Controller) ModifyUserStatusByID(ctx *gin.Context) {
 	}
 	c.ReturnModifySuccess(ctx)
 }
+
+// @Summary 更新用户密码
+// @Tags user
+// @Accept json
+// @Produce  json
+// @Param id path int64 true "用户ID"
+// @Param object body domain.ChangePasswordCommand true "更新用户密码信息"
+// @Success 200 object object "{"msg": "modify success"}"
+// @Router /user/{id}/password [patch]
+func (c *Controller) ModifyUserPasswordByID(ctx *gin.Context) {
+	id, err := c.GetLongParam(ctx, "id")
+	if err != nil {
+		c.ReturnErr(ctx, common.RequestParamError("入参[用户ID]解析失败", err))
+		return
+	}
+	var command domain.ChangePasswordCommand
+	if err := ctx.ShouldBindJSON(&command); err != nil {
+		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
+		return
+	}
+	command.ID = id
+	if err = c.Service.ModifyUserPasswordByID(ctx, command); err != nil {
+		c.ReturnErr(ctx, err)
+	}
+	c.ReturnModifySuccess(ctx)
+}

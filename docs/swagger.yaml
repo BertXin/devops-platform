@@ -11,23 +11,24 @@ definitions:
         description: 总数
         type: integer
     type: object
+  domain.ChangePasswordCommand:
+    properties:
+      password:
+        type: string
+    type: object
   domain.CreateUserCommand:
     properties:
-      avatar:
-        type: string
       email:
         type: string
       mobile:
         type: string
       name:
         type: string
-      org_display_name:
+      password:
         type: string
       role:
         $ref: '#/definitions/enum.SysRole'
       username:
-        type: string
-      wx_work_user_id:
         type: string
     type: object
   domain.ModifyUserRoleCommand:
@@ -42,8 +43,6 @@ definitions:
     type: object
   domain.User:
     properties:
-      avatar:
-        type: string
       created_at:
         type: string
       created_by:
@@ -52,8 +51,6 @@ definitions:
         type: string
       enable:
         description: 1：启用   2：禁用
-        type: integer
-      gitlab_user_id:
         type: integer
       id:
         type: string
@@ -65,15 +62,11 @@ definitions:
         type: string
       name:
         type: string
-      org_display_name:
-        type: string
       role:
         allOf:
         - $ref: '#/definitions/enum.SysRole'
         description: 0:普通用户，1:管理员，2:虚拟用户
       username:
-        type: string
-      wx_work_user_id:
         type: string
     type: object
   enum.SysRole:
@@ -160,6 +153,32 @@ paths:
           schema:
             $ref: '#/definitions/domain.User'
       summary: 获取用户信息
+      tags:
+      - user
+  /user/{id}/password:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新用户密码信息
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ChangePasswordCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"msg": "modify success"}'
+          schema:
+            type: object
+      summary: 更新用户密码
       tags:
       - user
   /user/{id}/role:

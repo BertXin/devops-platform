@@ -41,6 +41,15 @@ func (r *Repository) Create(ctx context.Context, user *domain.User) (err error) 
 }
 
 /**
+ * 根据名称获取密码
+ */
+func (r *Repository) GetPasswordByUsername(ctx context.Context, username string) (password string, err error) {
+	var user domain.User
+	err = r.DB(ctx).Model(&user).Where("username = ?", username).Select("password").First(&user).Error
+	return user.Password, err
+}
+
+/**
  * 保存、更新用户信息
  */
 func (r *Repository) Save(ctx context.Context, user *domain.User) (err error) {
@@ -84,20 +93,6 @@ func (r *Repository) GetByUsername(ctx context.Context, username string) (user *
 		Username: username,
 	}
 
-	err = r.DB(ctx).Where(user).Find(user).Error
-	if user.ID == 0 {
-		user = nil
-	}
-	return
-}
-
-/**
- * 根据gitlabID获取用户信息
- */
-func (r *Repository) GetByGitlabID(ctx context.Context, ID int) (user *domain.User, err error) {
-	user = &domain.User{
-		GitlabUserID: ID,
-	}
 	err = r.DB(ctx).Where(user).Find(user).Error
 	if user.ID == 0 {
 		user = nil

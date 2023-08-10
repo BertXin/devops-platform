@@ -123,6 +123,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/{id}/password": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "更新用户密码",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新用户密码信息",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.ChangePasswordCommand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"msg\": \"modify success\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
         "/user/{id}/role": {
             "patch": {
                 "consumes": [
@@ -226,12 +266,17 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.ChangePasswordCommand": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.CreateUserCommand": {
             "type": "object",
             "properties": {
-                "avatar": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
@@ -241,16 +286,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "org_display_name": {
+                "password": {
                     "type": "string"
                 },
                 "role": {
                     "$ref": "#/definitions/enum.SysRole"
                 },
                 "username": {
-                    "type": "string"
-                },
-                "wx_work_user_id": {
                     "type": "string"
                 }
             }
@@ -274,9 +316,6 @@ const docTemplate = `{
         "domain.User": {
             "type": "object",
             "properties": {
-                "avatar": {
-                    "type": "string"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -288,9 +327,6 @@ const docTemplate = `{
                 },
                 "enable": {
                     "description": "1：启用   2：禁用",
-                    "type": "integer"
-                },
-                "gitlab_user_id": {
                     "type": "integer"
                 },
                 "id": {
@@ -308,9 +344,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "org_display_name": {
-                    "type": "string"
-                },
                 "role": {
                     "description": "0:普通用户，1:管理员，2:虚拟用户",
                     "allOf": [
@@ -320,9 +353,6 @@ const docTemplate = `{
                     ]
                 },
                 "username": {
-                    "type": "string"
-                },
-                "wx_work_user_id": {
                     "type": "string"
                 }
             }

@@ -22,6 +22,7 @@ type Service interface {
 
 type Repository interface {
 	GetByUsername(ctx context.Context, username string) (user *domain.User, err error)
+	GetPasswordByUsername(ctx context.Context, username string) (password string, err error)
 }
 
 type Query interface {

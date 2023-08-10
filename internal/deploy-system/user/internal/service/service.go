@@ -5,15 +5,24 @@ import (
 	"devops-platform/internal/common/service"
 	"devops-platform/internal/deploy-system/user/internal/domain"
 	"devops-platform/internal/deploy-system/user/internal/repository"
-	"devops-platform/internal/pkg/enum"
 	"devops-platform/pkg/common"
 	"devops-platform/pkg/types"
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Service struct {
 	service.Service
 	Repo *repository.Repository `inject:"UserRepository"`
+}
+
+//加密password
+func (s *Service) setPassword(password string) (hashString string) {
+	// 生成密码哈希
+	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	// 转换为字符串
+	hashString = string(hash)
+	return
 }
 
 //Create
@@ -38,6 +47,9 @@ func (s *Service) Create(ctx context.Context, command *domain.CreateUserCommand)
 	if err != nil {
 		return
 	}
+
+	user.Password = s.setPassword(command.Password)
+
 	/*
 		增加审计信息
 	*/
@@ -96,11 +108,8 @@ func (s *Service) ModifyUserByID(ctx context.Context, command *domain.ModifyUser
 	user.Email = command.Email
 	user.Mobile = command.Mobile
 	user.Role = command.Role
-	user.OrgDisplayName = command.OrgDisplayName
-	user.Avatar = command.Avatar
 	user.Username = command.Username
-	user.GitlabUserID = command.GitlabUserID
-	user.WxWorkUserID = command.WxWorkUserID
+	user.Password = command.Password
 	/*
 	 * 增加审计信息
 	 */
@@ -215,24 +224,50 @@ func (s *Service) ModifyUserStatusByID(ctx context.Context, command domain.Modif
 	return
 }
 
-func (s *Service) GetByID(ctx context.Context, ID types.Long) (*domain.User, error) {
-	return s.Repo.GetByID(ctx, ID)
-}
-
 /**
- * 处理离职人员
- */
-func (s *Service) ProcessResignUser(ctx context.Context, command domain.SyncUserMessageCommand) (err error) {
-	user, _ := s.Repo.GetByUsername(ctx, command.Username)
-	if user == nil {
+按名称修改用户密码
+*/
+func (s *Service) ModifyUserPasswordByID(ctx context.Context, command domain.ChangePasswordCommand) (err error) {
+	/*
+		开启事务
+	*/
+	ctx, err = s.BeginTransaction(ctx, "user service ModifyUserPasswordByID")
+	if err != nil {
 		return
 	}
-	user.Enable = enum.DisableStatus
+	/*
+		结束事务
+	*/
+	defer func() {
+		err = s.FinishTransaction(ctx, err, "user service ModifyUserPasswordByID")
+	}()
+	/*
+		查询用户信息对应的ID
+	*/
+	user, _ := s.Repo.GetByID(ctx, command.ID)
+	if user.ID == 0 {
+		err := common.RequestNotFoundError("用户信息不存在")
+		return err
+	}
+
+	user.Password = s.setPassword(command.Password)
+	/*
+	 * 增加审计信息
+	 */
+	user.AuditModified(ctx)
+
 	err = s.Repo.Save(ctx, user)
 	if err != nil {
 		return err
 	}
-	//删除产品线成员数据
-	//s.ProductLineService.DeleteMemberByUserId(ctx, user.ID)
+
 	return
 }
+
+func (s *Service) GetByID(ctx context.Context, ID types.Long) (*domain.User, error) {
+	return s.Repo.GetByID(ctx, ID)
+}
+
+//func (s *Service) GetPasswordByName(ctx context.Context, name string) (password string, err error) {
+//	return s.Repo.GetPasswordBy(ctx, name)
+//}

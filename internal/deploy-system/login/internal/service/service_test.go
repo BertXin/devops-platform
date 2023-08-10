@@ -22,9 +22,21 @@ func init() {
 }
 func TestKeyCloakService_Login(t *testing.T) {
 	ctx := context.TODO()
-	user, err := s.Login(ctx, "xin.zhang", "1997922@Zx")
+	user, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Print(user)
+}
+
+func TestKeyCloakService_CheckToken(t *testing.T) {
+	ctx := context.TODO()
+	ssoToken, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
+
+	token, err := s.CheckToken(ctx, ssoToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Print(token.Name)
 }

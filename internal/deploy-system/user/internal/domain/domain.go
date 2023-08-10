@@ -11,16 +11,13 @@ import (
 
 type User struct {
 	module.Module
-	Username       string       `json:"username" gorm:"uniqueIndex:user_username_uindex"`
-	Name           string       `json:"name"`
-	Mobile         string       `json:"mobile"`
-	Email          string       `json:"email"`
-	Role           enum.SysRole `json:"role"` // 0:普通用户，1:管理员，2:虚拟用户
-	OrgDisplayName string       `json:"org_display_name"`
-	Avatar         string       `json:"avatar"`
-	WxWorkUserID   string       `json:"wx_work_user_id"`
-	GitlabUserID   int          `json:"gitlab_user_id"`
-	Enable         enum.Enable  `json:"enable"` //1：启用   2：禁用
+	Username string       `json:"username" gorm:"uniqueIndex:user_username_uindex"`
+	Password string       `json:"-" gorm:"default:null"`
+	Name     string       `json:"name"`
+	Mobile   string       `json:"mobile"`
+	Email    string       `json:"email"`
+	Role     enum.SysRole `json:"role"`   // 0:普通用户，1:管理员，2:虚拟用户
+	Enable   enum.Enable  `json:"enable"` //1：启用   2：禁用
 }
 
 func (u *User) VO() module.User {
@@ -31,14 +28,12 @@ func (u *User) VO() module.User {
 }
 
 type CreateUserCommand struct {
-	Username       string       `json:"username"`
-	Name           string       `json:"name"`
-	Mobile         string       `json:"mobile"`
-	Email          string       `json:"email"`
-	Role           enum.SysRole `json:"role"`
-	OrgDisplayName string       `json:"org_display_name"`
-	Avatar         string       `json:"avatar"`
-	WxWorkUserID   string       `json:"wx_work_user_id"`
+	Username string       `json:"username"`
+	Password string       `json:"password"`
+	Name     string       `json:"name"`
+	Mobile   string       `json:"mobile"`
+	Email    string       `json:"email"`
+	Role     enum.SysRole `json:"role"`
 }
 
 func (command *CreateUserCommand) ToUser() (*User, error) {
@@ -47,14 +42,12 @@ func (command *CreateUserCommand) ToUser() (*User, error) {
 		return nil, err
 	}
 	return &User{
-		Username:       command.Username,
-		Name:           command.Name,
-		Mobile:         command.Mobile,
-		Email:          command.Email,
-		Role:           command.Role,
-		OrgDisplayName: command.OrgDisplayName,
-		Avatar:         command.Avatar,
-		WxWorkUserID:   command.WxWorkUserID,
+		Username: command.Username,
+		//Password: command.Password,
+		Name:   command.Name,
+		Mobile: command.Mobile,
+		Email:  command.Email,
+		Role:   command.Role,
 	}, nil
 }
 
@@ -64,30 +57,29 @@ func (command *CreateUserCommand) Validate() error {
 	if command.Username == "" {
 		return common.RequestParamError("", errors.New("用户名不能为空"))
 	}
-
+	command.Password = strings.TrimSpace(command.Password)
+	if command.Password == "" {
+		return common.RequestParamError("", errors.New("密码不能为空"))
+	}
 	command.Name = strings.TrimSpace(command.Name)
 	if command.Name == "" {
 		return common.RequestParamError("", errors.New("名称不能为空"))
 	}
+
 	command.Mobile = strings.TrimSpace(command.Mobile)
 	command.Email = strings.TrimSpace(command.Email)
-	command.Avatar = strings.TrimSpace(command.Avatar)
-	command.WxWorkUserID = strings.TrimSpace(command.WxWorkUserID)
 
 	return nil
 }
 
 type ModifyUserCommand struct {
-	ID             types.Long   `json:"-"`
-	Username       string       `json:"username"`
-	Name           string       `json:"name"`
-	Mobile         string       `json:"mobile"`
-	Email          string       `json:"email"`
-	Role           enum.SysRole `json:"role"`
-	OrgDisplayName string       `json:"org_display_name"`
-	Avatar         string       `json:"avatar"`
-	WxWorkUserID   string       `json:"wx_work_user_id"`
-	GitlabUserID   int          `json:"gitlab_user_id"`
+	ID       types.Long   `json:"-"`
+	Username string       `json:"username"`
+	Password string       `json:"password"`
+	Name     string       `json:"name"`
+	Mobile   string       `json:"mobile"`
+	Email    string       `json:"email"`
+	Role     enum.SysRole `json:"role"`
 }
 
 func (command *ModifyUserCommand) Validate() error {
@@ -96,23 +88,16 @@ func (command *ModifyUserCommand) Validate() error {
 	if command.Username == "" {
 		return common.RequestParamError("", errors.New("用户名不能为空"))
 	}
-
+	command.Password = strings.TrimSpace(command.Password)
+	if command.Password == "" {
+		return common.RequestParamError("", errors.New("密码不能为空"))
+	}
 	command.Name = strings.TrimSpace(command.Name)
 	if command.Name == "" {
 		return common.RequestParamError("", errors.New("名称不能为空"))
 	}
-
-	command.WxWorkUserID = strings.TrimSpace(command.WxWorkUserID)
-	if command.WxWorkUserID == "" {
-		return common.RequestParamError("", errors.New("企业微信账号不能为空"))
-	}
-
-	if command.GitlabUserID < 0 {
-		return common.RequestNotFoundError("gitlab账号ID不能小于零")
-	}
 	command.Mobile = strings.TrimSpace(command.Mobile)
 	command.Email = strings.TrimSpace(command.Email)
-	command.Avatar = strings.TrimSpace(command.Avatar)
 
 	return nil
 }
@@ -127,21 +112,7 @@ type ModifyUserStatusCommand struct {
 	Status enum.Enable `json:"status"`
 }
 
-type ModifyUserGitlabUserIDCommand struct {
-	ID           types.Long `json:"-"`
-	GitlabUserID int        `json:"gitlab_user_id"`
-}
-
-type SyncUserMessageCommand struct {
-	ID             types.Long `json:"id"`
-	Username       string     `json:"username"`
-	Name           string     `json:"name"`
-	OldMobile      string     `json:"oldMobile"`
-	Mobile         string     `json:"mobile"`
-	Email          string     `json:"email"`
-	Gender         string     `json:"gender"`
-	Enable         int        `json:"enable"`
-	EmployeeType   int        `json:"employeeType"`
-	employeeNumber string     `json:"employeeNumber"`
-	CorpFlag       bool       `json:"corpFlag"`
+type ChangePasswordCommand struct {
+	ID       types.Long `json:"-"`
+	Password string     `json:"password"`
 }

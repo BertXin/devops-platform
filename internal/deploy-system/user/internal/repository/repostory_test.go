@@ -23,22 +23,31 @@ func init() {
 
 func TestCreate(t *testing.T) {
 	user := &domain.User{
-		Module:         module.Module{},
-		Username:       "zhangxiu233",
-		Name:           "test",
-		Mobile:         "",
-		Email:          "",
-		Role:           0,
-		OrgDisplayName: "",
-		Avatar:         "",
-		WxWorkUserID:   "",
-		GitlabUserID:   0,
-		Enable:         1,
+		Module:   module.Module{},
+		Username: "zhangxiu233222",
+		Password: "123456",
+		Name:     "test",
+		Mobile:   "",
+		Email:    "",
+		Role:     0,
+		Enable:   1,
 	}
 	err := r.Create(context.TODO(), user)
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestRepository_GetPasswordByUsername(t *testing.T) {
+	password, err := r.GetPasswordByUsername(context.TODO(), "xin.zhang")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(password)
+	//$2a$10$q1tKmdT8.cfZH1Lw3mhYLe3pGMUhy7zZIAFYgrSZuXGGQgfCtnToO
+	//$2a$10$VazwsWi9v/cBe9Dm4OXCyOFXBXl1D1mPkryNyR4Xik/2TyZIqX9Fa
+	//$2a$10$5so.oA32gCWS3/GdZw6iPu/if60bXxq9CMRnHR7a2fbdhfPgjplZy
+	//$2a$10$Yvfz08oaCbnEkugFOIuCveKfbMmKAqqQzKh/F/s0O4IilSJT6SQqy
 }
 
 func TestRepository_GetByID(t *testing.T) {

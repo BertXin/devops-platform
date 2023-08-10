@@ -27,13 +27,12 @@ func init() {
 func TestService_Create(t *testing.T) {
 	ctx := context.TODO()
 	command := &user.CreateUserCommand{
-		Username:     "130",
-		Name:         "吴不",
-		Mobile:       "req",
-		Email:        "xin.zhang@yatsenglobal.com",
-		Avatar:       "无头像",
-		WxWorkUserID: "130xxx",
-		Role:         enum.SysRoleAdminUser,
+		Username: "130",
+		Password: "12334555",
+		Name:     "吴不",
+		Mobile:   "req",
+		Email:    "xin.zhang@yatsenglobal.com",
+		Role:     enum.SysRoleAdminUser,
 	}
 	id, err := s.Create(ctx, command)
 	if err != nil {
@@ -46,19 +45,27 @@ func TestService_Create(t *testing.T) {
 
 func TestService_ModifyUserByID(t *testing.T) {
 	m := &domain.ModifyUserCommand{
-		ID:           1,
-		Username:     "zhangxin",
-		Name:         "zhangxin",
-		Mobile:       "zhangxin",
-		Email:        "zhangxin",
-		Avatar:       "zhangxin",
-		WxWorkUserID: "zhangxin",
-		GitlabUserID: 3,
-		Role:         enum.SysRoleVirtualUser,
+		ID:       1,
+		Username: "zhangxin",
+		Name:     "zhangxin",
+		Mobile:   "zhangxin",
+		Email:    "zhangxin",
+		Role:     enum.SysRoleVirtualUser,
 	}
 	err := s.ModifyUserByID(context.TODO(), m)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println("成功")
+}
+
+func TestModifyUserPasswordByName(t *testing.T) {
+	m := &domain.ChangePasswordCommand{
+		ID:       16,
+		Password: "1234567324",
+	}
+	err := s.ModifyUserPasswordByID(context.TODO(), *m)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

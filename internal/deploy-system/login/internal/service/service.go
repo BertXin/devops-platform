@@ -34,16 +34,41 @@ func (c *KeyCloakService) init() {
 	c.client = gocloak.NewClient(c.config.GetAuthUrl())
 }
 
-func (s *KeyCloakService) Login(ctx context.Context, username string, password string) (user *gocloak.UserInfo, err error) {
-	token, err := s.client.Login(ctx, s.config.GetClientId(), s.config.GetClientSecret(), s.config.GetRealm(), username, password)
+/*
+ 根据用户密码换取token信息
+*/
+func (s *KeyCloakService) GetSsoToken(ctx context.Context, username string, password string) (token string, err error) {
+	login, err := s.client.Login(ctx, s.config.GetClientId(), s.config.GetClientSecret(), s.config.GetRealm(), username, password)
 	if err != nil {
-		return nil, err
+		logrus.Error("请求API出错：", err)
+		return
 	}
-	user, err = s.client.GetUserInfo(ctx, token.AccessToken, s.config.GetRealm())
-	if err != nil {
-		logrus.Error(err)
-	}
-	return
+	accessToken := login.AccessToken
+	return accessToken, err
+	//s.client.GetToken(ctx, s.config.GetRealm())
 }
+
+/*
+ * 根据token换取登录用户信息
+ */
+func (s *KeyCloakService) CheckToken(ctx context.Context, token string) (checkToken *domain.SsoCheckTokenVO, err error) {
+	info, err := s.client.GetUserInfo(ctx, token, s.config.GetRealm())
+	if err != nil {
+		logrus.Error("请求API出错：", err)
+		return
+	}
+
+	return domain.ToUser(info), err
+
+	//return user, err
+}
+
+/*
+ 获取用户明细，不存在则新增
+*/
+//func (s *KeyCloakService) GetAndCreate(ctx context.Context, token string) (loginUser domain.LoginUserVO, err error) {
+//
+//}
+
 func (s *KeyCloakService) GetaCodeURL() {
 }
