@@ -6,6 +6,8 @@ import (
 	"devops-platform/internal/deploy-system/user/internal/domain"
 	"devops-platform/internal/pkg/enum"
 	"devops-platform/pkg/types"
+	"errors"
+	"gorm.io/gorm"
 )
 
 /**
@@ -92,10 +94,12 @@ func (r *Repository) GetByUsername(ctx context.Context, username string) (user *
 	user = &domain.User{
 		Username: username,
 	}
-
-	err = r.DB(ctx).Where(user).Find(user).Error
-	if user.ID == 0 {
-		user = nil
+	if err := r.DB(ctx).Where(user).First(user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
 	}
-	return
+
+	return user, nil
 }

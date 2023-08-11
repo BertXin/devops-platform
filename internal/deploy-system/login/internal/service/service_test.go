@@ -31,12 +31,23 @@ func TestKeyCloakService_Login(t *testing.T) {
 
 func TestKeyCloakService_CheckToken(t *testing.T) {
 	ctx := context.TODO()
-	ssoToken, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
+	//ssoToken, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
+	ssoToken, err := s.GetSsoToken(ctx, "hulin.zhang", "plokij1404")
 
 	token, err := s.CheckToken(ctx, ssoToken)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Print(token.Name)
+	fmt.Print(token.Name, token.Email)
+}
+
+func TestKeyCloakService_LocalLogin(t *testing.T) {
+	ctx := context.TODO()
+	user := &domain.LoginRequest{
+		Username: "xin.zhang1",
+		Password: "1234566",
+	}
+	login := s.LocalLogin(ctx, user)
+	fmt.Print(login)
 }

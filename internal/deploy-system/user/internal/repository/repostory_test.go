@@ -59,7 +59,7 @@ func TestRepository_GetByID(t *testing.T) {
 }
 
 func TestRepository_GetByUsername(t *testing.T) {
-	user, err := r.GetByUsername(context.TODO(), "130")
+	user, err := r.GetByUsername(context.TODO(), "xin.zhang1")
 	if err != nil {
 		t.Fatal(err)
 	}

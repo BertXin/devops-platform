@@ -7,6 +7,8 @@ import (
 	"devops-platform/internal/deploy-system/user"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type KeyCloakService struct {
@@ -37,30 +39,87 @@ func (c *KeyCloakService) init() {
 /*
  根据用户密码换取token信息
 */
-func (s *KeyCloakService) GetSsoToken(ctx context.Context, username string, password string) (token string, err error) {
-	login, err := s.client.Login(ctx, s.config.GetClientId(), s.config.GetClientSecret(), s.config.GetRealm(), username, password)
-	if err != nil {
-		logrus.Error("请求API出错：", err)
-		return
-	}
-	accessToken := login.AccessToken
-	return accessToken, err
-	//s.client.GetToken(ctx, s.config.GetRealm())
-}
+//func (s *KeyCloakService) GetSsoToken(ctx context.Context, username string, password string) (token string, err error) {
+//	login, err := s.client.Login(ctx, s.config.GetClientId(), s.config.GetClientSecret(), s.config.GetRealm(), username, password)
+//	if err != nil {
+//		logrus.Error("请求API出错：", err)
+//		return
+//	}
+//	accessToken := login.AccessToken
+//	return accessToken, err
+//}
 
 /*
  * 根据token换取登录用户信息
  */
-func (s *KeyCloakService) CheckToken(ctx context.Context, token string) (checkToken *domain.SsoCheckTokenVO, err error) {
-	info, err := s.client.GetUserInfo(ctx, token, s.config.GetRealm())
+//func (s *KeyCloakService) CheckToken(ctx context.Context, token string) (checkToken *domain.SsoCheckTokenVO, err error) {
+//	info, err := s.client.GetUserInfo(ctx, token, s.config.GetRealm())
+//	if err != nil {
+//		logrus.Error("请求API出错：", err)
+//		return
+//	}
+//	return domain.ToUser(info), err
+//
+//}
+
+/*
+登录
+*/
+//func (s *KeyCloakService) Login(ctx context.Context, username string, pwd string) (token string, err error) {
+//	//查询用户
+//	userinfo, err := s.UserRepository.GetByUsername(ctx, username)
+//	if err != nil {
+//		logrus.Error("查询不到用户", err)
+//		return
+//	}
+//	//根据用户获取密码
+//	password, err := s.UserRepository.GetPasswordByUsername(ctx, userinfo.Username)
+//	if err != nil {
+//		logrus.Error("获取密码识别", err)
+//		return
+//	}
+//	//验证密码
+//	if err := s.ValidatePassword(password, pwd); err != nil {
+//		// 返回错误
+//		logrus.Error("密码验证错误", err)
+//		return
+//	}
+//	// 4. 生成JWT token
+//	//s.JwtService.GenerateToken(username)
+//	return "", err
+//}
+
+/*
+本地登录
+*/
+func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginRequest) (domain.LoginResponse, error) {
+	userinfo, err := s.UserRepository.GetByUsername(ctx, login.Username)
 	if err != nil {
-		logrus.Error("请求API出错：", err)
-		return
+		logrus.Error("查询不到用户", err)
+		return domain.LoginResponse{nil, ""}, err
 	}
-
-	return domain.ToUser(info), err
-
-	//return user, err
+	//根据用户获取密码
+	password, err := s.UserRepository.GetPasswordByUsername(ctx, userinfo.Username)
+	if err != nil {
+		logrus.Error("获取密码失败", err)
+		return domain.LoginResponse{nil, ""}, err
+	}
+	//验证密码
+	if err := s.ValidatePassword(password, login.Password); err != nil {
+		logrus.Error("密码验证错误", err)
+		return domain.LoginResponse{nil, ""}, err
+	}
+	//创建jwtToken
+	claims := domain.TokenClaims{
+		ID:       login.Username,
+		Username: login.Username,
+		Exp:      time.Now().Add(24 * time.Hour).Unix(),
+	}
+	token, _ := GenerateToken(&claims)
+	return domain.LoginResponse{
+		User:  userinfo,
+		Token: token,
+	}, nil
 }
 
 /*
@@ -71,4 +130,22 @@ func (s *KeyCloakService) CheckToken(ctx context.Context, token string) (checkTo
 //}
 
 func (s *KeyCloakService) GetaCodeURL() {
+}
+
+/*
+密码验证
+*/
+func (s *KeyCloakService) ValidatePassword(encryptedPassword string, password string) error {
+	// 1. 把encryptedPassword从字符串转换成[]byte
+	encryptedPasswordBytes := []byte(encryptedPassword)
+
+	// 2. 使用bcrypt进行密码匹配
+	err := bcrypt.CompareHashAndPassword(encryptedPasswordBytes, []byte(password))
+
+	// 3. 返回错误或nil
+	if err != nil {
+		logrus.Error("密码不正确", err)
+		return err
+	}
+	return nil
 }

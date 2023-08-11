@@ -62,7 +62,7 @@ func TestService_ModifyUserByID(t *testing.T) {
 func TestModifyUserPasswordByName(t *testing.T) {
 	m := &domain.ChangePasswordCommand{
 		ID:       16,
-		Password: "1234567324",
+		Password: "123456",
 	}
 	err := s.ModifyUserPasswordByID(context.TODO(), *m)
 	if err != nil {
