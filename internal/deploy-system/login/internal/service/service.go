@@ -5,9 +5,9 @@ import (
 	"devops-platform/internal/common/config"
 	"devops-platform/internal/deploy-system/login/internal/domain"
 	"devops-platform/internal/deploy-system/user"
+	"devops-platform/pkg/common"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -105,10 +105,15 @@ func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginReq
 		return domain.LoginResponse{nil, ""}, err
 	}
 	//验证密码
-	if err := s.ValidatePassword(password, login.Password); err != nil {
+	if !common.ValidatePassword(password, login.Password) {
 		logrus.Error("密码验证错误", err)
 		return domain.LoginResponse{nil, ""}, err
 	}
+
+	//if err := s.ValidatePassword(password, login.Password); err != nil {
+	//	logrus.Error("密码验证错误", err)
+	//	return domain.LoginResponse{nil, ""}, err
+	//}
 	//创建jwtToken
 	claims := domain.TokenClaims{
 		ID:       login.Username,
@@ -130,22 +135,4 @@ func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginReq
 //}
 
 func (s *KeyCloakService) GetaCodeURL() {
-}
-
-/*
-密码验证
-*/
-func (s *KeyCloakService) ValidatePassword(encryptedPassword string, password string) error {
-	// 1. 把encryptedPassword从字符串转换成[]byte
-	encryptedPasswordBytes := []byte(encryptedPassword)
-
-	// 2. 使用bcrypt进行密码匹配
-	err := bcrypt.CompareHashAndPassword(encryptedPasswordBytes, []byte(password))
-
-	// 3. 返回错误或nil
-	if err != nil {
-		logrus.Error("密码不正确", err)
-		return err
-	}
-	return nil
 }

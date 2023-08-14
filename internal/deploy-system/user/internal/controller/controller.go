@@ -77,6 +77,9 @@ func (c *Controller) CreateUser(ctx *gin.Context) {
 		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
 		return
 	}
+	//密码加密
+	command.Password = common.SetPassword(command.Password)
+
 	id, err := c.Service.Create(ctx, &command)
 
 	if err != nil {
@@ -196,17 +199,23 @@ func (c *Controller) ModifyUserStatusByID(ctx *gin.Context) {
 // @Success 200 object object "{"msg": "modify success"}"
 // @Router /user/{id}/password [patch]
 func (c *Controller) ModifyUserPasswordByID(ctx *gin.Context) {
+	//oldPassword := ctx.Query("oldPassword")
+	//newPassword := ctx.Query("newPassword")
 	id, err := c.GetLongParam(ctx, "id")
 	if err != nil {
 		c.ReturnErr(ctx, common.RequestParamError("入参[用户ID]解析失败", err))
 		return
 	}
+
 	var command domain.ChangePasswordCommand
 	if err := ctx.ShouldBindJSON(&command); err != nil {
 		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
 		return
 	}
+
 	command.ID = id
+	//command.Password = c.Service.SetPassword(command.Password)
+
 	if err = c.Service.ModifyUserPasswordByID(ctx, command); err != nil {
 		c.ReturnErr(ctx, err)
 	}

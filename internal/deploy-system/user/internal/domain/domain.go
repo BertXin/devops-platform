@@ -43,11 +43,11 @@ func (command *CreateUserCommand) ToUser() (*User, error) {
 	}
 	return &User{
 		Username: command.Username,
-		//Password: command.Password,
-		Name:   command.Name,
-		Mobile: command.Mobile,
-		Email:  command.Email,
-		Role:   command.Role,
+		Password: command.Password,
+		Name:     command.Name,
+		Mobile:   command.Mobile,
+		Email:    command.Email,
+		Role:     command.Role,
 	}, nil
 }
 

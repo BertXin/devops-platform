@@ -8,21 +8,11 @@ import (
 	"devops-platform/pkg/common"
 	"devops-platform/pkg/types"
 	"errors"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Service struct {
 	service.Service
 	Repo *repository.Repository `inject:"UserRepository"`
-}
-
-//加密password
-func (s *Service) setPassword(password string) (hashString string) {
-	// 生成密码哈希
-	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	// 转换为字符串
-	hashString = string(hash)
-	return
 }
 
 //Create
@@ -47,8 +37,6 @@ func (s *Service) Create(ctx context.Context, command *domain.CreateUserCommand)
 	if err != nil {
 		return
 	}
-
-	user.Password = s.setPassword(command.Password)
 
 	/*
 		增加审计信息
@@ -250,7 +238,7 @@ func (s *Service) ModifyUserPasswordByID(ctx context.Context, command domain.Cha
 		return err
 	}
 
-	user.Password = s.setPassword(command.Password)
+	user.Password = common.SetPassword(command.Password)
 	/*
 	 * 增加审计信息
 	 */
