@@ -31,6 +31,13 @@ definitions:
       username:
         type: string
     type: object
+  domain.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   domain.ModifyUserRoleCommand:
     properties:
       role:
@@ -88,6 +95,28 @@ info:
   title: 运维系统
   version: "2.0"
 paths:
+  /sso/login:
+    get:
+      consumes:
+      - application/json
+      description: 用户登录接口,用于通过用户名密码登录系统
+      parameters:
+      - description: 登录参数
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+      summary: 用户密码登录
+      tags:
+      - login
   /user:
     get:
       consumes:

@@ -1,14 +1,15 @@
 package controller
 
 import (
+	"context"
 	"devops-platform/internal/common/web"
 	"devops-platform/internal/deploy-system/login/internal/domain"
 	"devops-platform/internal/deploy-system/login/internal/service"
 	"devops-platform/pkg/common"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strings"
 )
 
 const LoginError int = 50000
@@ -18,7 +19,15 @@ type Controller struct {
 	SsoLoginService *service.KeyCloakService `inject:"SsoLoginService"`
 }
 
-func (c *Controller) Login(ctx *gin.Context) {
+// @Summary 用户密码登录
+// @Description 用户登录接口,用于通过用户名密码登录系统
+// @Tags login
+// @Accept json
+// @Produce json
+// @Param object body domain.LoginRequest true "登录参数"
+// @Success 200 {string} string "token"
+// @Router /sso/login [get]
+func (c *Controller) LocalLogin(ctx *gin.Context) {
 	var req domain.LoginRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
@@ -33,7 +42,7 @@ func (c *Controller) Login(ctx *gin.Context) {
 	c.SetCurrentUser(ctx, user)
 	token, err := common.GenerateToken(user)
 	if err != nil {
-		c.ReturnErr(ctx, common.Unauthorized(LoginError, errors.New("换取token失败")))
+		c.ReturnErr(ctx, common.Unauthorized(LoginError, errors.New("获取token失败")))
 		return
 	}
 	ctx.JSON(http.StatusOK, token)
@@ -41,34 +50,44 @@ func (c *Controller) Login(ctx *gin.Context) {
 
 func (c *Controller) Authentication(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
-	if len(token) == 0 {
-		token = ctx.Query("token")
-	}
-	/*
-	 * 没有token或token的开头不是"Bearer " 则直接进行下一步
-	 */
-	token = strings.ToLower(token)
-	if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
-		ctx.Next()
+	claims, err := common.ParseToken(token)
+	if err != nil {
+		fmt.Print(err)
 		return
 	}
-	token = strings.TrimPrefix(token, domain.TokenPrefix)
+
+	user := c.parserUserFromClaims(ctx, claims)
+	c.SetCurrentUser(ctx, user)
+	//if len(token) == 0 {
+	//	token = ctx.Query("token")
+	//}
+	//
+	///*
+	// * 没有token或token的开头不是"Bearer " 则直接进行下一步
+	// */
+	//token = strings.ToLower(token)
+	//if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
+	//	ctx.Next()
+	//	return
+	//}
+	//token = strings.TrimPrefix(token, domain.TokenPrefix)
 
 	ctx.Next()
 }
 
-// parseTokenFromHeader 解析JWT token
-func parseTokenFromHeader(ctx *gin.Context) string {
-	authHeader := ctx.GetHeader("Authorization")
-	if authHeader == "" {
-		return ""
+func (c *Controller) parserUserFromClaims(ctx context.Context, claims *common.Claims) (loginUser *domain.LoginUserVO) {
+	// 1. 从claims中获取用户ID
+	userId := claims.UserID
+	// 2. 使用用户ID从数据库查询用户信息
+	user, err := c.SsoLoginService.UserService.GetByID(ctx, userId)
+	if err != nil {
+		return nil
 	}
-	// 按空格分割
-	parts := strings.SplitN(authHeader, " ", 2)
-	if !(len(parts) == 2 && parts[0] == "Bearer") {
-		return ""
+	loginUser = &domain.LoginUserVO{
+		UserID:    user.ID,
+		LoginName: user.Name,
+		Username:  user.Username,
+		Role:      user.Role,
 	}
-
-	return parts[1]
-
+	return loginUser
 }

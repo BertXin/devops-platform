@@ -29,7 +29,6 @@ func GenerateToken(user *login.LoginUser) (token string, err error) {
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	token, err = tokenClaims.SignedString([]byte("secret"))
-
 	return
 }
 
