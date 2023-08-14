@@ -4,11 +4,14 @@ import (
 	"devops-platform/internal/common/web"
 	"devops-platform/internal/deploy-system/login/internal/domain"
 	"devops-platform/internal/deploy-system/login/internal/service"
-	"github.com/form3tech-oss/jwt-go"
+	"devops-platform/pkg/common"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 )
+
+const LoginError int = 50000
 
 type Controller struct {
 	web.Controller
@@ -18,16 +21,22 @@ type Controller struct {
 func (c *Controller) Login(ctx *gin.Context) {
 	var req domain.LoginRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		// 返回错误
-
+		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
+		return
 	}
-
-	resp, err := c.SsoLoginService.LocalLogin(ctx, &req)
+	//验证登录
+	user, err := c.SsoLoginService.LocalLogin(ctx, &req)
 	if err != nil {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, resp)
+	c.SetCurrentUser(ctx, user)
+	token, err := common.GenerateToken(user)
+	if err != nil {
+		c.ReturnErr(ctx, common.Unauthorized(LoginError, errors.New("换取token失败")))
+		return
+	}
+	ctx.JSON(http.StatusOK, token)
 }
 
 func (c *Controller) Authentication(ctx *gin.Context) {
@@ -48,21 +57,18 @@ func (c *Controller) Authentication(ctx *gin.Context) {
 	ctx.Next()
 }
 
-// ParseToken 解析JWT token
-func ParseToken(token string) (*domain.TokenClaims, error) {
-
-	// 1. 截取Bearer
-	token = strings.TrimPrefix(token, "Bearer ")
-
-	// 2. 解析token
-	claim := &domain.TokenClaims{}
-	_, err := jwt.ParseWithClaims(token, claim, func(t *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
-	})
-	if err != nil {
-		return nil, err
+// parseTokenFromHeader 解析JWT token
+func parseTokenFromHeader(ctx *gin.Context) string {
+	authHeader := ctx.GetHeader("Authorization")
+	if authHeader == "" {
+		return ""
+	}
+	// 按空格分割
+	parts := strings.SplitN(authHeader, " ", 2)
+	if !(len(parts) == 2 && parts[0] == "Bearer") {
+		return ""
 	}
 
-	return claim, nil
+	return parts[1]
 
 }

@@ -1,7 +1,8 @@
 package domain
 
 import (
-	"devops-platform/internal/deploy-system/user"
+	"devops-platform/internal/pkg/enum"
+	"devops-platform/pkg/types"
 	"errors"
 	"time"
 )
@@ -11,9 +12,31 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-type LoginResponse struct {
-	User  *user.User `json:"user"`
-	Token string     `json:"token"`
+type LoginUserVO struct {
+	UserID    types.Long   `json:"user_id"`
+	LoginName string       `json:"login_name"`
+	Username  string       `json:"user_name"`
+	Role      enum.SysRole `json:"role"`
+	Token     string       `json:"-"`
+}
+
+func (user *LoginUserVO) GetID() types.Long {
+	return user.GetID()
+}
+
+func (user *LoginUserVO) GetName() string {
+	return user.Username
+}
+
+func (user *LoginUserVO) GetRole() enum.SysRole {
+	return user.Role
+}
+func (user *LoginUserVO) GetToken() string {
+	return user.Token
+}
+
+func (user *LoginUserVO) GetLoginName() string {
+	return user.LoginName
 }
 
 type TokenClaims struct {

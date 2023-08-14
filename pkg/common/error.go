@@ -25,6 +25,14 @@ func (e *Error) Error() string {
 	return e.error.Error()
 }
 
+func Unauthorized(code int, err error) *Error {
+	return &Error{
+		error:  err,
+		code:   code,
+		status: 401,
+	}
+}
+
 func ServiceError(code int, err error) *Error {
 	return &Error{
 		error:  err,

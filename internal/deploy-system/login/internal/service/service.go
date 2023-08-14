@@ -8,7 +8,6 @@ import (
 	"devops-platform/pkg/common"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type KeyCloakService struct {
@@ -92,39 +91,43 @@ func (c *KeyCloakService) init() {
 /*
 本地登录
 */
-func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginRequest) (domain.LoginResponse, error) {
+func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginRequest) (*domain.LoginUserVO, error) {
 	userinfo, err := s.UserRepository.GetByUsername(ctx, login.Username)
 	if err != nil {
 		logrus.Error("查询不到用户", err)
-		return domain.LoginResponse{nil, ""}, err
+		return nil, err
 	}
 	//根据用户获取密码
 	password, err := s.UserRepository.GetPasswordByUsername(ctx, userinfo.Username)
 	if err != nil {
 		logrus.Error("获取密码失败", err)
-		return domain.LoginResponse{nil, ""}, err
+		return nil, err
 	}
 	//验证密码
 	if !common.ValidatePassword(password, login.Password) {
 		logrus.Error("密码验证错误", err)
-		return domain.LoginResponse{nil, ""}, err
+		return nil, err
 	}
 
-	//if err := s.ValidatePassword(password, login.Password); err != nil {
-	//	logrus.Error("密码验证错误", err)
-	//	return domain.LoginResponse{nil, ""}, err
-	//}
-	//创建jwtToken
-	claims := domain.TokenClaims{
-		ID:       login.Username,
-		Username: login.Username,
-		Exp:      time.Now().Add(24 * time.Hour).Unix(),
+	loginUser := &domain.LoginUserVO{
+		UserID:    userinfo.ID,
+		LoginName: userinfo.Username,
+		Username:  userinfo.Name,
+		Role:      userinfo.Role,
 	}
-	token, _ := GenerateToken(&claims)
-	return domain.LoginResponse{
-		User:  userinfo,
-		Token: token,
-	}, nil
+	return loginUser, nil
+
+	////创建jwtToken
+	//claims := domain.TokenClaims{
+	//	ID:       login.Username,
+	//	Username: login.Username,
+	//	Exp:      time.Now().Add(24 * time.Hour).Unix(),
+	//}
+	//token, _ := GenerateToken(&claims)
+	//return &domain.LoginResponse{
+	//	User:  userinfo,
+	//	Token: token,
+	//}, nil
 }
 
 /*

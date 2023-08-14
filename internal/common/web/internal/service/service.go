@@ -25,6 +25,15 @@ func SetContext(ctx *gin.Context, realContext context.Context) {
 	return
 }
 
+func Set(ctx *gin.Context, name string, value interface{}) {
+	realContext := GetContext(ctx)
+	realContext = context.WithValue(realContext, name, value)
+	ctx.Set(domain.RealContext, realContext)
+}
+func Get(ctx *gin.Context, name string) (value interface{}) {
+	return GetContext(ctx).Value(name)
+}
+
 func SetCurrentUser(ctx *gin.Context, user security.User) {
 	if user == nil {
 		return

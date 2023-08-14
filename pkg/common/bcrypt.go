@@ -1,7 +1,6 @@
 package common
 
 import (
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -21,7 +20,6 @@ func ValidatePassword(encryptedPassword string, password string) bool {
 
 	// 3. 返回错误或nil
 	if err != nil {
-		logrus.Error("密码不正确", err)
 		return false
 	}
 	return true

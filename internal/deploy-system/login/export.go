@@ -1,5 +1,5 @@
-package keycloak
+package login
 
 import "devops-platform/internal/deploy-system/login/internal/domain"
 
-type TokenClaims domain.TokenClaims
+type LoginUser = domain.LoginUserVO

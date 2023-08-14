@@ -20,34 +20,38 @@ func init() {
 	beans.Register(domain.BeanService, &s)
 	beans.Start()
 }
-func TestKeyCloakService_Login(t *testing.T) {
-	ctx := context.TODO()
-	user, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Print(user)
-}
 
-func TestKeyCloakService_CheckToken(t *testing.T) {
-	ctx := context.TODO()
-	//ssoToken, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
-	ssoToken, err := s.GetSsoToken(ctx, "hulin.zhang", "plokij1404")
+//func TestKeyCloakService_Login(t *testing.T) {
+//	ctx := context.TODO()
+//	user, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	fmt.Print(user)
+//}
 
-	token, err := s.CheckToken(ctx, ssoToken)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Print(token.Name, token.Email)
-}
+//func TestKeyCloakService_CheckToken(t *testing.T) {
+//	ctx := context.TODO()
+//	//ssoToken, err := s.GetSsoToken(ctx, "xin.zhang", "1997922@Zx")
+//	ssoToken, err := s.GetSsoToken(ctx, "hulin.zhang", "plokij1404")
+//
+//	token, err := s.CheckToken(ctx, ssoToken)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	fmt.Print(token.Name, token.Email)
+//}
 
 func TestKeyCloakService_LocalLogin(t *testing.T) {
 	ctx := context.TODO()
 	user := &domain.LoginRequest{
-		Username: "xin.zhang1",
-		Password: "1234566",
+		Username: "xin.zhang",
+		Password: "123456",
 	}
-	login := s.LocalLogin(ctx, user)
-	fmt.Print(login)
+	localLogin, err := s.LocalLogin(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Print(localLogin)
 }
