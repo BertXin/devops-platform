@@ -62,36 +62,9 @@ func (c *KeyCloakService) init() {
 //}
 
 /*
-登录
-*/
-//func (s *KeyCloakService) Login(ctx context.Context, username string, pwd string) (token string, err error) {
-//	//查询用户
-//	userinfo, err := s.UserRepository.GetByUsername(ctx, username)
-//	if err != nil {
-//		logrus.Error("查询不到用户", err)
-//		return
-//	}
-//	//根据用户获取密码
-//	password, err := s.UserRepository.GetPasswordByUsername(ctx, userinfo.Username)
-//	if err != nil {
-//		logrus.Error("获取密码识别", err)
-//		return
-//	}
-//	//验证密码
-//	if err := s.ValidatePassword(password, pwd); err != nil {
-//		// 返回错误
-//		logrus.Error("密码验证错误", err)
-//		return
-//	}
-//	// 4. 生成JWT token
-//	//s.JwtService.GenerateToken(username)
-//	return "", err
-//}
-
-/*
 本地登录
 */
-func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginRequest) (*domain.LoginUserVO, error) {
+func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginRequest) (loginuser *domain.LoginUserVO, err error) {
 	userinfo, err := s.UserRepository.GetByUsername(ctx, login.Username)
 	if err != nil {
 		logrus.Error("查询不到用户", err)
@@ -104,30 +77,19 @@ func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginReq
 		return nil, err
 	}
 	//验证密码
-	if !common.ValidatePassword(password, login.Password) {
+	if err := common.ValidatePassword(password, login.Password); err != nil {
+		// 返回错误
 		logrus.Error("密码验证错误", err)
 		return nil, err
 	}
 
-	loginUser := &domain.LoginUserVO{
+	return &domain.LoginUserVO{
 		UserID:    userinfo.ID,
 		LoginName: userinfo.Username,
 		Username:  userinfo.Name,
 		Role:      userinfo.Role,
-	}
-	return loginUser, nil
+	}, nil
 
-	////创建jwtToken
-	//claims := domain.TokenClaims{
-	//	ID:       login.Username,
-	//	Username: login.Username,
-	//	Exp:      time.Now().Add(24 * time.Hour).Unix(),
-	//}
-	//token, _ := GenerateToken(&claims)
-	//return &domain.LoginResponse{
-	//	User:  userinfo,
-	//	Token: token,
-	//}, nil
 }
 
 /*
@@ -136,6 +98,3 @@ func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginReq
 //func (s *KeyCloakService) GetAndCreate(ctx context.Context, token string) (loginUser domain.LoginUserVO, err error) {
 //
 //}
-
-func (s *KeyCloakService) GetaCodeURL() {
-}

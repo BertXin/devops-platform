@@ -19,51 +19,39 @@ type Controller struct {
 	SsoLoginService *service.KeyCloakService `inject:"SsoLoginService"`
 }
 
-// @Summary 用户密码登录
-// @Description 用户登录接口,用于通过用户名密码登录系统
-// @Tags login
-// @Accept json
-// @Produce json
-// @Param object body domain.LoginRequest true "登录参数"
-// @Success 200 {string} string "token"
-// @Router /sso/login [get]
 func (c *Controller) LocalLogin(ctx *gin.Context) {
 	var req domain.LoginRequest
-	if err := ctx.ShouldBind(&req); err != nil {
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
 		return
 	}
 	//验证登录
 	user, err := c.SsoLoginService.LocalLogin(ctx, &req)
 	if err != nil {
+		c.ReturnErr(ctx, common.WarpError(err))
 		return
 	}
 
 	c.SetCurrentUser(ctx, user)
+
 	token, err := common.GenerateToken(user)
 	if err != nil {
 		c.ReturnErr(ctx, common.Unauthorized(LoginError, errors.New("获取token失败")))
 		return
 	}
+
 	ctx.JSON(http.StatusOK, token)
 }
 
 func (c *Controller) Authentication(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
-	claims, err := common.ParseToken(token)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-
-	user := c.parserUserFromClaims(ctx, claims)
-	c.SetCurrentUser(ctx, user)
 	//if len(token) == 0 {
 	//	token = ctx.Query("token")
 	//}
 	//
 	///*
-	// * 没有token或token的开头不是"Bearer " 则直接进行下一步
+	//* 没有token或token的开头不是"Bearer " 则直接进行下一步
 	// */
 	//token = strings.ToLower(token)
 	//if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
@@ -72,6 +60,14 @@ func (c *Controller) Authentication(ctx *gin.Context) {
 	//}
 	//token = strings.TrimPrefix(token, domain.TokenPrefix)
 
+	claims, err := common.ParseToken(token)
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+	user := c.parserUserFromClaims(ctx, claims)
+
+	c.SetCurrentUser(ctx, user)
 	ctx.Next()
 }
 

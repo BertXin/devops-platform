@@ -14,13 +14,13 @@ func SetPassword(password string) (hashString string) {
 }
 
 //ValidatePassword解密password
-func ValidatePassword(encryptedPassword string, password string) bool {
+func ValidatePassword(encryptedPassword string, password string) error {
 	// 2. 使用bcrypt进行密码匹配
 	err := bcrypt.CompareHashAndPassword([]byte(encryptedPassword), []byte(password))
 
 	// 3. 返回错误或nil
 	if err != nil {
-		return false
+		return err
 	}
-	return true
+	return nil
 }

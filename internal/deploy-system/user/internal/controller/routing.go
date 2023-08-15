@@ -29,5 +29,5 @@ func (c *Controller) injectRouting(getBean func(string) interface{}) {
 		routes.PATCH("/:id/status", c.ModifyUserStatusByID)
 		routes.PATCH("/:id/password", c.ModifyUserPasswordByID)
 	}
-	web.AddIgnoreUrls("/user")
+	//web.AddIgnoreUrls("/user")
 }

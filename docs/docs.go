@@ -19,40 +19,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/sso/login": {
-            "get": {
-                "description": "用户登录接口,用于通过用户名密码登录系统",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "login"
-                ],
-                "summary": "用户密码登录",
-                "parameters": [
-                    {
-                        "description": "登录参数",
-                        "name": "object",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "token",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/user": {
             "get": {
                 "consumes": [
@@ -325,17 +291,6 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/enum.SysRole"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "type": "string"
                 },
                 "username": {
                     "type": "string"
