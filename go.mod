@@ -1,11 +1,11 @@
 module devops-platform
 
-go 1.17
+go 1.19
 
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/Nerzal/gocloak/v13 v13.8.0
-	github.com/form3tech-oss/jwt-go v3.2.3+incompatible
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/sirupsen/logrus v1.9.3
@@ -18,7 +18,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect

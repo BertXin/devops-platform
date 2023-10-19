@@ -46,13 +46,14 @@ func (c *Controller) LocalLogin(ctx *gin.Context) {
 
 func (c *Controller) Authentication(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
+	//token = strings.ToLower(token)
 	//if len(token) == 0 {
 	//	token = ctx.Query("token")
 	//}
-	//
-	///*
-	//* 没有token或token的开头不是"Bearer " 则直接进行下一步
-	// */
+	////
+	/////*
+	////* 没有token或token的开头不是"Bearer " 则直接进行下一步
+	//// */
 	//token = strings.ToLower(token)
 	//if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
 	//	ctx.Next()

@@ -1,0 +1,897 @@
+@startuml
+namespace beans {
+    class beans.postStarts << (T, #FF7700) >>  {
+    }
+    class beans.preStops << (T, #FF7700) >>  {
+    }
+    interface injectable  {
+        + Inject( <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+    }
+    interface postStart  {
+        + StartOrder() int
+        + Start() 
+
+    }
+    class postStarts << (S,Aquamarine) >> {
+        - start() 
+
+        + Len() int
+        + Less(i int, j int) bool
+        + Swap(i int, j int) 
+
+    }
+    interface preInjectable  {
+        + PreInject( <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+    }
+    interface preStop  {
+        + StopOrder() int
+        + Stop() 
+
+    }
+    class preStops << (S,Aquamarine) >> {
+        - stop() 
+
+        + Len() int
+        + Less(i int, j int) bool
+        + Swap(i int, j int) 
+
+    }
+}
+
+
+namespace common {
+    class Claims << (S,Aquamarine) >> {
+        + UserID types.Long
+        + Name string
+
+    }
+    class Error << (S,Aquamarine) >> {
+        - code int
+        - status int
+        - code int
+        - status int
+
+        + GetCode() int
+        + GetStatus() int
+        + Unwrap() error
+        + Error() string
+        + GetCode() int
+        + GetStatus() int
+        + Unwrap() error
+        + Error() string
+
+    }
+}
+"jwt.StandardClaims" *-- "common.Claims"
+"__builtin__.error" *-- "common.Error"
+
+"domain.Error" <|-- "common.Error"
+
+namespace controller {
+    class Controller << (S,Aquamarine) >> {
+        + SsoLoginService *service.KeyCloakService
+        + UserQuery *repository.Repository
+        + Service *service.Service
+
+        - parserUserFromClaims(ctx context.Context, claims *common.Claims) *domain.LoginUserVO
+        - injectRouting(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        - injectQuery(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        - injectService(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        - injectRouting(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+        + LocalLogin(ctx *gin.Context) 
+        + Authentication(ctx *gin.Context) 
+        + Inject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        + GetByID(ctx *gin.Context) 
+        + CreateUser(ctx *gin.Context) 
+        + FindByName(ctx *gin.Context) 
+        + ModifyUserRoleByID(ctx *gin.Context) 
+        + ModifyUserStatusByID(ctx *gin.Context) 
+        + ModifyUserPasswordByID(ctx *gin.Context) 
+        + Inject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+    }
+    class FindByNameAndMobileQuery << (S,Aquamarine) >> {
+        + Name string
+        + ID types.Long
+        + Mobile string
+        + Enable int64
+
+    }
+    class FindByNameAndMobileResponse << (S,Aquamarine) >> {
+        + Records []domain.User
+        + Total int64
+
+    }
+}
+"web.Controller" *-- "controller.Controller"
+"types.Pagination" *-- "controller.FindByNameAndMobileQuery"
+
+"beans.injectable" <|-- "controller.Controller"
+
+namespace domain {
+    class ChangePasswordCommand << (S,Aquamarine) >> {
+        + ID types.Long
+        + Password string
+
+    }
+    class ClusterServer << (S,Aquamarine) >> {
+        + Name string
+        + Config Config
+        + Description string
+
+    }
+    class Config << (S,Aquamarine) >> {
+        + Database database
+        + Log log
+        + App app
+        + Tekton tekton
+        + Sso sso
+        + Address string
+        + CertificateAuthority string
+        + UserClientCertificate string
+        + UserClientKey string
+
+        + GetClientId() string
+        + GetClientSecret() string
+        + GetAuthUrl() string
+        + GetRealm() string
+        + GetSystemName() string
+        + GetClientId() string
+        + GetClientSecret() string
+        + GetAuthUrl() string
+        + GetRealm() string
+        + GetAddress() string
+        + GetCertificateAuthority() string
+        + GetUserClientCertificate() string
+        + GetUserClientKey() string
+
+    }
+    class CreateClusterServerCommand << (S,Aquamarine) >> {
+        + Name string
+        + Description string
+        + Address string
+        + CertificateAuthority string
+        + UserClientCertificate string
+        + UserClientKey string
+
+        + ToClusterServer() (*ClusterServer, error)
+        + Validate() error
+
+    }
+    class CreateImageRepositoryCommand << (S,Aquamarine) >> {
+        + Name string
+        + Address string
+        + Description string
+
+        + ToImageRepository() (*ImageRepository, error)
+        + Validate() error
+
+    }
+    class CreateUserCommand << (S,Aquamarine) >> {
+        + Username string
+        + Password string
+        + Name string
+        + Mobile string
+        + Email string
+        + Role enum.SysRole
+
+        + ToUser() (*User, error)
+        + Validate() error
+
+    }
+    interface Error  {
+        + GetCode() int
+        + GetStatus() int
+        + Error() string
+
+    }
+    class ImageRepository << (S,Aquamarine) >> {
+        + Name string
+        + Address string
+        + Description string
+
+    }
+    interface KubernetesConfig  {
+        + GetAddress() string
+        + GetCertificateAuthority() string
+        + GetUserClientCertificate() string
+        + GetUserClientKey() string
+
+    }
+    class LoginRequest << (S,Aquamarine) >> {
+        + Username string
+        + Password string
+
+    }
+    class LoginUserVO << (S,Aquamarine) >> {
+        + UserID types.Long
+        + LoginName string
+        + Username string
+        + Role enum.SysRole
+        + Token string
+
+        + GetID() types.Long
+        + GetName() string
+        + GetRole() enum.SysRole
+        + GetToken() string
+        + GetLoginName() string
+
+    }
+    class ModifyCertificateCommand << (S,Aquamarine) >> {
+        + ID types.Long
+        + CertificateAuthority string
+        + UserClientCertificate string
+        + UserClientKey string
+
+        + Validate() error
+
+    }
+    class ModifyImageRepositoryCommand << (S,Aquamarine) >> {
+        + ID types.Long
+        + Name string
+        + Address string
+        + Description string
+
+    }
+    class ModifyInfoCommand << (S,Aquamarine) >> {
+        + ID types.Long
+        + Name string
+        + ImageRepositoryID types.Long
+        + Description string
+        + Address string
+
+        + Validate() error
+
+    }
+    class ModifyUserCommand << (S,Aquamarine) >> {
+        + ID types.Long
+        + Username string
+        + Password string
+        + Name string
+        + Mobile string
+        + Email string
+        + Role enum.SysRole
+
+        + Validate() error
+
+    }
+    class ModifyUserRoleCommand << (S,Aquamarine) >> {
+        + ID types.Long
+        + Role enum.SysRole
+
+    }
+    class ModifyUserStatusCommand << (S,Aquamarine) >> {
+        + ID types.Long
+        + Status enum.Enable
+
+    }
+    class ProductLineEnvironment << (S,Aquamarine) >> {
+        + ClusterServerID types.Long
+        + ClusterServer ClusterServer
+
+    }
+    class User << (S,Aquamarine) >> {
+        + Username string
+        + Password string
+        + Name string
+        + Mobile string
+        + Email string
+        + Role enum.SysRole
+        + Enable enum.Enable
+
+        + VO() module.User
+
+    }
+    class app << (S,Aquamarine) >> {
+        + Url string
+        + FrontUrl string
+        + Addr string
+        + Env string
+        + Gods []string
+
+        + GetServerAddress() string
+        + GetEnv() string
+
+    }
+    class clusterServer << (S,Aquamarine) >> {
+        + Name string
+        + Config Config
+        + ImageRepositoryID types.Long
+        + Description string
+
+    }
+    class config << (S,Aquamarine) >> {
+        - clusterServer string
+        - clusterCertificateAuthority string
+        - userClientCertificate string
+        - userClientKey string
+
+        - kubeConfigGetter() (*api.Config, error)
+
+        + GetKubeConfig() (*rest.Config, error)
+
+    }
+    class database << (S,Aquamarine) >> {
+        + Host string
+        + Port int16
+        + User string
+        + Password string
+        + DB string
+        + MaxIdle int
+        + MaxOpen int
+
+        + GetDataSourceName() string
+        + GetMaxIdle() int
+        + GetMaxOpen() int
+        + GetMaxConnectionLifetime() time.Duration
+
+    }
+    class imageRepository << (S,Aquamarine) >> {
+        + Name string
+        + Address string
+        + Description string
+
+    }
+    class log << (S,Aquamarine) >> {
+        + Output string
+        + Formatter string
+        + FilePath string
+        + Level string
+        + TimestampFormat string
+        + SlowThreshold time.Duration
+
+        + GetOutput() string
+        + GetFormatter() string
+        + GetFilePath() string
+        + GetLevel() string
+        + GetTimestampFormat() string
+        + GetSlowThreshold() time.Duration
+
+    }
+    class sso << (S,Aquamarine) >> {
+        + ClientId string
+        + ClientSecret string
+        + AuthUrl string
+        + Realm string
+
+        + GetClientId() string
+        + GetClientSecret() string
+        + GetAuthUrl() string
+        + GetRealm() string
+
+    }
+    class tekton << (S,Aquamarine) >> {
+        + SystemName string
+
+        + GetSystemName() string
+
+    }
+}
+"module.Module" *-- "domain.ClusterServer"
+"module.Module" *-- "domain.ImageRepository"
+"module.Module" *-- "domain.ProductLineEnvironment"
+"module.Module" *-- "domain.User"
+"module.Module" *-- "domain.clusterServer"
+"module.Module" *-- "domain.imageRepository"
+
+"domain.Config" <|-- "domain.Config"
+"domain.KubernetesConfig" <|-- "domain.Config"
+"security.User" <|-- "domain.LoginUserVO"
+"service.httpServerConfig" <|-- "domain.app"
+"service.databaseConfig" <|-- "domain.database"
+"service.logConfig" <|-- "domain.log"
+
+namespace enum {
+    class BuildMethod << (S,Aquamarine) >> {
+        + String() string
+        + Int() int
+        + Value() string
+        + AllowRestart() bool
+        + HasImageBuild() bool
+        + IsAndroidBuild() bool
+        + IsJava() bool
+        + IsYarn() bool
+        + IsNpm() bool
+        + IsYarnHigh() bool
+        + IsNpmHigh() bool
+        + IsFrontEnd() bool
+
+    }
+    class BuildStatus << (S,Aquamarine) >> {
+        + String() string
+        + Int() int
+        + Value() string
+
+    }
+    class DeployStatus << (S,Aquamarine) >> {
+        + String() string
+        + Int() int
+        + Value() string
+
+    }
+    class Enable << (S,Aquamarine) >> {
+        + String() string
+        + ValidStatus() bool
+
+    }
+    class ProductMemberRole << (S,Aquamarine) >> {
+        + String() string
+        + Int() int
+        + Value() string
+        + IsLeader() bool
+
+    }
+    class SysRole << (S,Aquamarine) >> {
+        + String() string
+        + Int() int
+        + Value() string
+        + ValidRole() bool
+
+    }
+    class enum.BuildMethod << (T, #FF7700) >>  {
+    }
+    class enum.BuildMode << (T, #FF7700) >>  {
+    }
+    class enum.BuildStatus << (T, #FF7700) >>  {
+    }
+    class enum.BuildType << (T, #FF7700) >>  {
+    }
+    class enum.DeployMode << (T, #FF7700) >>  {
+    }
+    class enum.DeployStatus << (T, #FF7700) >>  {
+    }
+    class enum.Enable << (T, #FF7700) >>  {
+    }
+    class enum.ProductMemberRole << (T, #FF7700) >>  {
+    }
+    class enum.ReviewMode << (T, #FF7700) >>  {
+    }
+    class enum.SysRole << (T, #FF7700) >>  {
+    }
+}
+
+
+namespace ints {
+    class Array << (S,Aquamarine) >> {
+        + Scan(src <font color=blue>interface</font>{}) error
+        + Value() (driver.Value, error)
+
+    }
+    class ints.Array << (T, #FF7700) >>  {
+    }
+}
+
+
+namespace kubernetes {
+    class kubernetes.Config << (T, #FF7700) >>  {
+    }
+    class kubernetes.Service << (T, #FF7700) >>  {
+    }
+    class "domain.KubernetesConfig" as domainKubernetesConfig {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "service.Service" as serviceService {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace log {
+    class Config << (S,Aquamarine) >> {
+        + Env string
+        + Level string
+        + TimestampFormat string
+        + Logfile string
+
+    }
+    class log.KVs << (T, #FF7700) >>  {
+    }
+    class log.Level << (T, #FF7700) >>  {
+    }
+    class "logrus.Fields" as logrusFields {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "logrus.Level" as logrusLevel {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace login {
+    class login.LoginUser << (T, #FF7700) >>  {
+    }
+    class "domain.LoginUserVO" as domainLoginUserVO {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace longs {
+    class Array << (S,Aquamarine) >> {
+        + Scan(src <font color=blue>interface</font>{}) error
+        + Value() (driver.Value, error)
+
+    }
+    class longs.Array << (T, #FF7700) >>  {
+    }
+    class "[]types.Long" as typesLong {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace module {
+    class CreateOnlyModule << (S,Aquamarine) >> {
+        + ID types.Long
+        + CreatedAt types.Time
+        + CreatedBy User
+
+        + AuditCreated(ctx context.Context) 
+
+    }
+    class Module << (S,Aquamarine) >> {
+        + ID types.Long
+        + CreatedAt types.Time
+        + CreatedBy User
+        + LastModifiedAt types.Time
+        + LastModifiedBy User
+
+        + AuditCreated(ctx context.Context) 
+        + AuditModified(ctx context.Context) 
+
+    }
+    class Operation << (S,Aquamarine) >> {
+        + Operator User
+        + OperatedAt types.Time
+
+        + OperatingRecord(ctx context.Context) 
+
+    }
+    class ShareVolume << (S,Aquamarine) >> {
+        + Name string
+        + Type string
+        + NfsPath string
+        + NfsServer string
+        + PvcName string
+
+        + GormDataType() string
+        + Scan(value <font color=blue>interface</font>{}) error
+        + Value() (driver.Value, error)
+
+    }
+    class User << (S,Aquamarine) >> {
+        + ID types.Long
+        + Name string
+
+        - from(user security.User) 
+
+    }
+    class module.DeleteStatus << (T, #FF7700) >>  {
+    }
+}
+
+
+namespace repository {
+    class Repository << (S,Aquamarine) >> {
+        - db *gorm.DB
+        - client *kubernetes.Clientset
+
+        + Inject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        + DB(ctx context.Context) *gorm.DB
+        + GetPodLogs(ctx context.Context, namespace string, podName string, containerName string) (string, error)
+        + GetRealTimePodLogs(ctx context.Context, namespace string, podName string, containerName string) (io.ReadCloser, error)
+        + RestartDeployment(ctx context.Context, namespace string, deploymentName string, systemName string) error
+        + GetDeployment(ctx context.Context, namespace string, deploymentName string) (*v1.Deployment, error)
+        + GetDeployments(ctx context.Context, namespace string) (*v1.DeploymentList, error)
+        + DeploymentReady(ctx context.Context, namespace string, deploymentName string) (bool, error)
+        + GetDeploymentConfig(ctx context.Context, namespace string, deploymentName string) (*v1.ConfigMap, error)
+        + CreateServiceAccount(ctx context.Context, namespaces string, saName string) (*v1.ServiceAccount, error)
+        + DeleteServiceAccount(ctx context.Context, namespaces string, saName string) error
+        + CreateServiceAccountToken(ctx context.Context, namespaces string, saName string, expiration *int64) (*v1.TokenRequest, error)
+        + CreateRole(ctx context.Context, namespaces string, rules []v1.PolicyRule, name string) (*v1.Role, error)
+        + DeleteRole(ctx context.Context, namespaces string, name string) error
+        + CreateRoleBinding(ctx context.Context, subject v1.Subject, roleRef v1.RoleRef, namespace string, name string) (*v1.RoleBinding, error)
+        + DeleteRoleBinding(ctx context.Context, namespace string, name string) error
+        + UpdateRoleBinding(ctx context.Context, binding *v1.RoleBinding, namespace string) (*v1.RoleBinding, error)
+        + GetRoleBinding(ctx context.Context, namespace string, name string) (*v1.RoleBinding, error)
+        + CreateClusterRole(ctx context.Context, rules []v1.PolicyRule, name string) (*v1.ClusterRole, error)
+        + DeleteClusterRole(ctx context.Context, name string) error
+        + GetClusterServerByID(ctx context.Context, ID types.Long) (*domain.ClusterServer, error)
+        + CreateClusterServer(ctx context.Context, ClusterServer *domain.ClusterServer) error
+        + GetImageRepositoryByID(ctx context.Context, ID types.Long) (*domain.ImageRepository, error)
+        + CreateImageRepository(ctx context.Context, imageRepository *domain.ImageRepository) error
+        + SaveImageRepository(ctx context.Context, imageRepository *domain.ImageRepository) error
+        + FindImageRepositoryByNameAndAddress(ctx context.Context, name string, address string, pagination types.Pagination) ([]domain.ImageRepository, int64, error)
+        + DeleteImageRepositoryById(ctx context.Context, id types.Long) error
+        + GetByID(ctx context.Context, ID types.Long) (*domain.User, error)
+        + Create(ctx context.Context, user *domain.User) error
+        + GetPasswordByUsername(ctx context.Context, username string) (string, error)
+        + Save(ctx context.Context, user *domain.User) error
+        + FindByNameAndMobile(ctx context.Context, id types.Long, name string, mobile string, enable int64, pagination types.Pagination) ([]domain.User, int64, error)
+        + GetByUsername(ctx context.Context, username string) (*domain.User, error)
+
+    }
+}
+"repository.Repository" *-- "repository.Repository"
+
+"beans.injectable" <|-- "repository.Repository"
+"user.Query" <|-- "repository.Repository"
+"user.Repository" <|-- "repository.Repository"
+
+namespace security {
+    interface User  {
+        + GetID() types.Long
+        + GetName() string
+        + GetRole() enum.SysRole
+        + GetToken() string
+        + GetLoginName() string
+
+    }
+    class systemUser << (S,Aquamarine) >> {
+        + Name string
+
+        + GetID() types.Long
+        + GetName() string
+        + GetRole() enum.SysRole
+        + GetToken() string
+        + GetLoginName() string
+
+    }
+}
+
+"security.User" <|-- "security.systemUser"
+
+namespace service {
+    class DB << (S,Aquamarine) >> {
+        + StopOrder() int
+        + Stop() 
+        + PreInject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+    }
+    class HttpServerLifecycle << (S,Aquamarine) >> {
+        + Server *http.Server
+
+        - start() 
+        - log(c *gin.Context) 
+
+        + StartOrder() int
+        + StopOrder() int
+        + Start() 
+        + Stop() 
+        + PreInject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+    }
+    class KeyCloakService << (S,Aquamarine) >> {
+        - client *gocloak.GoCloak
+        - config domain.Config
+
+        + UserService user.Service
+        + UserRepository user.Repository
+
+        - init() 
+
+        + Inject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        + LocalLogin(ctx context.Context, login *domain.LoginRequest) (*domain.LoginUserVO, error)
+
+    }
+    class Logger << (S,Aquamarine) >> {
+        - slowThreshold time.Duration
+        - logLevel logger.LogLevel
+
+        + LogMode(level logger.LogLevel) logger.Interface
+        + Info(ctx context.Context, msg string, data ...<font color=blue>interface</font>{}) 
+        + Warn(ctx context.Context, msg string, data ...<font color=blue>interface</font>{}) 
+        + Error(ctx context.Context, msg string, data ...<font color=blue>interface</font>{}) 
+        + Trace(ctx context.Context, begin time.Time, fc <font color=blue>func</font>() (string, int64), err error) 
+        + PreInject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+    }
+    class Service << (S,Aquamarine) >> {
+        - db *gorm.DB
+        - client *gocloak.GoCloak
+        - config domain.Config
+        - repository *repository.Repository
+
+        + Repo *repository.Repository
+
+        - rollbackTransaction(db *gorm.DB, err error, point string) error
+        - commitTransaction(db *gorm.DB, err error, point string) error
+        - init() 
+
+        + Inject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        + BeginTransaction(ctx context.Context, point string) (context.Context, error)
+        + FinishTransaction(ctx context.Context, err error, point string) error
+        + Inject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+        + GetPodLogs(ctx context.Context, namespace string, podName string, containerName string) (string, error)
+        + GetRealTimePodLogs(ctx context.Context, namespace string, podName string, containerName string) (io.ReadCloser, error)
+        + DeploymentReady(ctx context.Context, namespace string, deploymentName string) (bool, error)
+        + GetDeployments(ctx context.Context, namespace string) ([]v1.Deployment, error)
+        + GetDeployment(ctx context.Context, namespace string, deploymentName string) (*v1.Deployment, error)
+        + RestartDeployment(ctx context.Context, namespaces string, deploymentName string) error
+        + CreateServiceAccount(ctx context.Context, namespaces string, saName string) (*v1.ServiceAccount, error)
+        + DeleteServiceAccount(ctx context.Context, namespaces string, saName string) error
+        + CreateRole(ctx context.Context, namespace string, rules []v1.PolicyRule, name string) error
+        + DeleteRole(ctx context.Context, namespace string, name string) error
+        + GetRoleBinding(ctx context.Context, namespace string, name string) (*v1.RoleBinding, error)
+        + UpdateRoleBinding(ctx context.Context, binding *v1.RoleBinding, namespace string) (*v1.RoleBinding, error)
+        + CreateRoleBinding(ctx context.Context, subject v1.Subject, roleRef v1.RoleRef, namespace string, name string) (*v1.RoleBinding, error)
+        + DeleteRoleBinding(ctx context.Context, namespace string, name string) error
+        + CreateServiceAccountToken(ctx context.Context, namespaces string, saName string, expiration *int64) (*v1.TokenRequest, error)
+        + Create(ctx context.Context, command *domain.CreateUserCommand) (types.Long, error)
+        + ModifyUserByID(ctx context.Context, command *domain.ModifyUserCommand) error
+        + ModifyUserRoleByID(ctx context.Context, command domain.ModifyUserRoleCommand) error
+        + ModifyUserStatusByID(ctx context.Context, command domain.ModifyUserStatusCommand) error
+        + ModifyUserPasswordByID(ctx context.Context, command domain.ChangePasswordCommand) error
+        + GetByID(ctx context.Context, ID types.Long) (*domain.User, error)
+
+    }
+    class Swagger << (S,Aquamarine) >> {
+        + Inject(getBean <font color=blue>func</font>(string) <font color=blue>interface</font>{}) 
+
+    }
+    interface databaseConfig  {
+        + GetDataSourceName() string
+        + GetMaxIdle() int
+        + GetMaxOpen() int
+        + GetMaxConnectionLifetime() time.Duration
+
+    }
+    interface httpServerConfig  {
+        + GetServerAddress() string
+        + GetEnv() string
+
+    }
+    interface logConfig  {
+        + GetOutput() string
+        + GetFormatter() string
+        + GetFilePath() string
+        + GetLevel() string
+        + GetTimestampFormat() string
+        + GetSlowThreshold() time.Duration
+
+    }
+}
+"gorm.DB" *-- "service.DB"
+"service.Service" *-- "service.Service"
+
+"beans.preInjectable" <|-- "service.DB"
+"beans.preStop" <|-- "service.DB"
+"beans.postStart" <|-- "service.HttpServerLifecycle"
+"beans.preInjectable" <|-- "service.HttpServerLifecycle"
+"beans.preStop" <|-- "service.HttpServerLifecycle"
+"beans.injectable" <|-- "service.KeyCloakService"
+"beans.preInjectable" <|-- "service.Logger"
+"beans.injectable" <|-- "service.Service"
+"beans.injectable" <|-- "service.Swagger"
+
+namespace types {
+    class Date << (S,Aquamarine) >> {
+        + UnmarshalJSON(data []byte) error
+        + MarshalJSON() ([]byte, error)
+        + String() string
+        + Value() (driver.Value, error)
+        + Scan(src <font color=blue>interface</font>{}) error
+
+    }
+    class Envs << (S,Aquamarine) >> {
+        + GormDataType() string
+        + Scan(value <font color=blue>interface</font>{}) error
+        + Value() (driver.Value, error)
+
+    }
+    class Long << (S,Aquamarine) >> {
+        + UnmarshalJSON(data []byte) error
+        + MarshalJSON() ([]byte, error)
+        + String() string
+        + In(values []Long) bool
+
+    }
+    class Pagination << (S,Aquamarine) >> {
+        + PageSize int
+        + Page int
+
+        + Limit() int
+        + Offset() int
+        + PaginationCondition() string
+
+    }
+    class Time << (S,Aquamarine) >> {
+        + UnmarshalJSON(data []byte) error
+        + MarshalJSON() ([]byte, error)
+        + String() string
+        + Value() (driver.Value, error)
+        + Scan(src <font color=blue>interface</font>{}) error
+        + Interval(u *Time) string
+
+    }
+    class types.Envs << (T, #FF7700) >>  {
+    }
+    class types.Long << (T, #FF7700) >>  {
+    }
+}
+"time.Time" *-- "types.Date"
+"time.Time" *-- "types.Time"
+
+
+namespace user {
+    interface Query  {
+        + GetByUsername(ctx context.Context, username string) (*domain.User, error)
+        + GetByID(ctx context.Context, ID types.Long) (*domain.User, error)
+
+    }
+    interface Repository  {
+        + GetByUsername(ctx context.Context, username string) (*domain.User, error)
+        + GetPasswordByUsername(ctx context.Context, username string) (string, error)
+
+    }
+    interface Service  {
+        + Create(ctx context.Context, command *CreateUserCommand) (types.Long, error)
+        + GetByID(ctx context.Context, ID types.Long) (*domain.User, error)
+
+    }
+    class user.CreateUserCommand << (T, #FF7700) >>  {
+    }
+    class user.User << (T, #FF7700) >>  {
+    }
+    class "domain.CreateUserCommand" as domainCreateUserCommand {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "domain.User" as domainUser {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace web {
+    class Controller << (S,Aquamarine) >> {
+        + GetLongParam(ctx *gin.Context, param string) (types.Long, error)
+        + GetContext(ctx *gin.Context) context.Context
+        + SetContext(ctx *gin.Context, realContext context.Context) 
+        + SetCurrentUser(ctx *gin.Context, user security.User) 
+        + CurrentUser(ctx *gin.Context) security.User
+        + AbortErr(ctx *gin.Context, err error) 
+        + ReturnErr(ctx *gin.Context, err error) 
+        + ReturnSuccess(ctx *gin.Context) 
+        + ReturnCreateSuccess(ctx *gin.Context, id types.Long) 
+        + ReturnModifySuccess(ctx *gin.Context) 
+        + ReturnDeleteSuccess(ctx *gin.Context) 
+        + ReturnQuerySuccess(ctx *gin.Context, data <font color=blue>interface</font>{}) 
+        + ReturnFindSuccess(ctx *gin.Context, records <font color=blue>interface</font>{}, total int64) 
+
+    }
+    class FindResponse << (S,Aquamarine) >> {
+        + Records <font color=blue>interface</font>{}
+        + Total int64
+
+    }
+}
+
+
+"__builtin__.<font color=blue>map</font>[string]string" #.. "types.Envs"
+"__builtin__.[]int" #.. "ints.Array"
+"__builtin__.int" #.. "enum.BuildMethod"
+"__builtin__.int" #.. "enum.BuildMode"
+"__builtin__.int" #.. "enum.BuildStatus"
+"__builtin__.int" #.. "enum.BuildType"
+"__builtin__.int" #.. "enum.DeployMode"
+"__builtin__.int" #.. "enum.DeployStatus"
+"__builtin__.int" #.. "enum.Enable"
+"__builtin__.int" #.. "enum.ProductMemberRole"
+"__builtin__.int" #.. "enum.ReviewMode"
+"__builtin__.int" #.. "enum.SysRole"
+"__builtin__.int" #.. "module.DeleteStatus"
+"__builtin__.int64" #.. "types.Long"
+"beans.[]postStart" #.. "beans.postStarts"
+"beans.[]preStop" #.. "beans.preStops"
+"kubernetes.domainKubernetesConfig" #.. "kubernetes.Config"
+"kubernetes.serviceService" #.. "kubernetes.Service"
+"log.logrusFields" #.. "log.KVs"
+"log.logrusLevel" #.. "log.Level"
+"login.domainLoginUserVO" #.. "login.LoginUser"
+"longs.typesLong" #.. "longs.Array"
+"user.domainCreateUserCommand" #.. "user.CreateUserCommand"
+"user.domainUser" #.. "user.User"
+@enduml
