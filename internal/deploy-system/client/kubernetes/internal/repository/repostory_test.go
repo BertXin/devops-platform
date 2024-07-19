@@ -40,7 +40,7 @@ func TestRepository_GetPodLogs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	log, err := r.GetPodLogs(context.TODO(), "niffty-apps", "auth-deploy-7d598b478c-f9m7j", "auth")
+	log, err := r.GetPodLogs(context.TODO(), "niffty-apps", "auth-deploy-bbb7d4c94-8h8zh", "auth")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -53,7 +53,7 @@ func TestRepository_GetRealTimePodLogs(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	closer, err := r.GetRealTimePodLogs(context.TODO(), "niffty-apps", "auth-deploy-64dd67c4cd-jc4nm", "auth")
+	closer, err := r.GetRealTimePodLogs(context.TODO(), "niffty-apps", "auth-deploy-bbb7d4c94-8h8zh", "auth")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
