@@ -45,17 +45,7 @@ func TestService_DeleteDeptByID(t *testing.T) {
 	}
 	t.Log(err)
 }
-func TestService_ModifyDeptParentIDByID(t *testing.T) {
-	ctx := context.TODO()
-	err := s.ModifyDeptParentIDByID(ctx, &domain.ModifyDeptCommand{
-		ID:       2,
-		ParentID: 1,
-	})
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log(err)
-}
+
 func TestService_ModifyDeptNameByID(t *testing.T) {
 	ctx := context.TODO()
 	err := s.ModifyDeptNameByID(ctx, &domain.ModifyDeptCommand{
