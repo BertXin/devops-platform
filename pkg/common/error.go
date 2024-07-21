@@ -25,7 +25,7 @@ func (e *Error) Error() string {
 	return e.error.Error()
 }
 
-//Unauthorized 封装未授权错误
+// Unauthorized 封装未授权错误
 func Unauthorized(code int, err error) *Error {
 	return &Error{
 		error:  err,
@@ -34,7 +34,7 @@ func Unauthorized(code int, err error) *Error {
 	}
 }
 
-//ServiceError 封装服务端错误
+// ServiceError 封装服务端错误
 func ServiceError(code int, err error) *Error {
 	return &Error{
 		error:  err,
@@ -43,7 +43,7 @@ func ServiceError(code int, err error) *Error {
 	}
 }
 
-//RequestError 封装请求错误
+// RequestError 封装请求错误
 func RequestError(code int, err error) *Error {
 	return &Error{
 		error:  err,
@@ -52,7 +52,7 @@ func RequestError(code int, err error) *Error {
 	}
 }
 
-//RequestParamError 封装请求参数错误
+// RequestParamError 封装请求参数错误
 func RequestParamError(message string, err error) *Error {
 	return &Error{
 		error:  fmt.Errorf(message+" %v", err),
@@ -61,7 +61,15 @@ func RequestParamError(message string, err error) *Error {
 	}
 }
 
-//RequestNotFoundError 封装请求未找到错误
+func RequestParamNilError(message string) *Error {
+	return &Error{
+		error:  fmt.Errorf(message),
+		code:   400,
+		status: 400,
+	}
+}
+
+// RequestNotFoundError 封装请求未找到错误
 func RequestNotFoundError(err string) *Error {
 	return &Error{
 		error:  errors.New(err),
@@ -79,7 +87,7 @@ func WarpServiceError(code int, message string, err error) *Error {
 	}
 }
 
-//WarpRequestError 封装请求错误并添加消息
+// WarpRequestError 封装请求错误并添加消息
 func WarpRequestError(code int, message string, err error) *Error {
 	return &Error{
 		error:  fmt.Errorf(message+" %v", err),

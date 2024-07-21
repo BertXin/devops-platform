@@ -46,8 +46,8 @@ func init() {
 func TestKeyCloakService_LocalLogin(t *testing.T) {
 	ctx := context.TODO()
 	user := &domain.LoginRequest{
-		Username: "xin.zhang",
-		Password: "1",
+		Username: "测试",
+		Password: "123456",
 	}
 	localLogin, err := s.LocalLogin(ctx, user)
 	if err != nil {

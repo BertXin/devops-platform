@@ -43,7 +43,7 @@ func (command *CreateUserCommand) ToUser() (*User, error) {
 	}
 	return &User{
 		Username: command.Username,
-		Password: command.Password,
+		Password: common.SetPassword(command.Password),
 		Name:     command.Name,
 		Mobile:   command.Mobile,
 		Email:    command.Email,

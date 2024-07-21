@@ -15,7 +15,7 @@ type Service struct {
 	Repo *repository.Repository `inject:"UserRepository"`
 }
 
-//Create
+// Create
 func (s *Service) Create(ctx context.Context, command *domain.CreateUserCommand) (id types.Long, err error) {
 	/*
 		开启事务
@@ -34,6 +34,7 @@ func (s *Service) Create(ctx context.Context, command *domain.CreateUserCommand)
 		转换为数据结构体
 	*/
 	user, err := command.ToUser()
+
 	if err != nil {
 		return
 	}
@@ -161,7 +162,8 @@ func (s *Service) ModifyUserRoleByID(ctx context.Context, command domain.ModifyU
 	return
 }
 
-/**
+/*
+*
 禁用或启用用户  1 ：启用 0 ：禁用
 */
 func (s *Service) ModifyUserStatusByID(ctx context.Context, command domain.ModifyUserStatusCommand) (err error) {
@@ -212,7 +214,8 @@ func (s *Service) ModifyUserStatusByID(ctx context.Context, command domain.Modif
 	return
 }
 
-/**
+/*
+*
 按名称修改用户密码
 */
 func (s *Service) ModifyUserPasswordByID(ctx context.Context, command domain.ChangePasswordCommand) (err error) {

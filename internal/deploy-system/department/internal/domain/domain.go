@@ -12,7 +12,7 @@ import (
 type Dept struct {
 	module.Module
 	Name     string     `json:"name" gorm:"comment:'部门名称'"`
-	Sort     int        `json:"sort" gorm:"comment:'排序'"`
+	Sort     types.Long `json:"sort" gorm:"comment:'排序'"`
 	ParentID types.Long `json:"parent_id" gorm:"comment:'父级部门ID'"` // 假设使用 types.Long 类型
 	//Description string     `json:"description" gorm:"comment:'部门描述'"`
 }
@@ -21,7 +21,7 @@ type Dept struct {
 type DeptVO struct {
 	ID       types.Long `json:"id"`
 	Name     string     `json:"name"`
-	Sort     int        `json:"sort"`
+	Sort     types.Long `json:"sort"`
 	ParentID types.Long `json:"parent_id"`
 	//Description  string     `json:"description"`
 }
@@ -40,7 +40,7 @@ func (d *Dept) VO() DeptVO {
 // CreateDeptCommand 定义创建部门的命令
 type CreateDeptCommand struct {
 	Name     string     `json:"name"`
-	Sort     int        `json:"sort"`
+	Sort     types.Long `json:"sort"`
 	ParentID types.Long `json:"parent_id"`
 	//Description string `json:"description"`
 }
@@ -65,6 +65,9 @@ func (command *CreateDeptCommand) Validate() error {
 	if command.Name == "" {
 		return common.RequestParamError("", errors.New("部门名称不能为空"))
 	}
+	if command.ParentID == 0 {
+		return common.RequestParamError("", errors.New("父级部门ID不能为空"))
+	}
 	return nil
 }
 
@@ -82,6 +85,9 @@ func (command *ModifyDeptCommand) Validate() error {
 	command.Name = strings.TrimSpace(command.Name)
 	if command.Name == "" {
 		return common.RequestParamError("", errors.New("部门名称不能为空"))
+	}
+	if command.ParentID == 0 {
+		return common.RequestParamError("", errors.New("父级部门ID不能为0"))
 	}
 	return nil
 }

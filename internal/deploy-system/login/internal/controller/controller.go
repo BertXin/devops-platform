@@ -7,12 +7,13 @@ import (
 	"devops-platform/internal/deploy-system/login/internal/service"
 	"devops-platform/pkg/common"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"strings"
 )
 
 const LoginError int = 50000
+
+const TokenError int = 50001
 
 type Controller struct {
 	web.Controller
@@ -40,30 +41,26 @@ func (c *Controller) LocalLogin(ctx *gin.Context) {
 		c.ReturnErr(ctx, common.Unauthorized(LoginError, errors.New("获取token失败")))
 		return
 	}
-
-	ctx.JSON(http.StatusOK, token)
+	//返回token
+	c.ReturnTokenSuccess(ctx, token)
 }
 
 func (c *Controller) Authentication(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
-	//token = strings.ToLower(token)
-	//if len(token) == 0 {
-	//	token = ctx.Query("token")
-	//}
-	////
-	/////*
-	////* 没有token或token的开头不是"Bearer " 则直接进行下一步
-	//// */
-	//token = strings.ToLower(token)
-	//if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
-	//	ctx.Next()
-	//	return
-	//}
-	//token = strings.TrimPrefix(token, domain.TokenPrefix)
+	if len(token) == 0 {
+		token = ctx.Query("token")
+	}
+	// 确保使用正确的前缀
+	if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
+		ctx.Next()
+		return
+	}
+	//去除Bearer
+	token = strings.TrimPrefix(token, domain.TokenPrefix)
 
 	claims, err := common.ParseToken(token)
 	if err != nil {
-		fmt.Print(err)
+		c.ReturnErr(ctx, common.RequestError(TokenError, errors.New("获取token失败")))
 		return
 	}
 	user := c.parserUserFromClaims(ctx, claims)

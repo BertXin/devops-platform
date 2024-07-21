@@ -39,9 +39,16 @@ func (r *Repository) Save(ctx context.Context, dept *domain.Dept) (err error) {
 }
 
 // FindByName 查询具有特定名称的部门列表
-func (r *Repository) FindByName(ctx context.Context, name string, pagination types.Pagination) (depts []domain.Dept, err error) {
-	tx := r.DB(ctx).Model(&domain.Dept{}).Where("name like ?", "%"+name+"%")
+func (r *Repository) FindByName(ctx context.Context, name string, parentid types.Long, pagination types.Pagination) (depts []domain.Dept, total int64, err error) {
+	tx := r.DB(ctx).Debug()
+	if name != "" {
+		tx = tx.Where("name LIKE ?", name)
+	}
+	if parentid != 0 {
+		tx = tx.Where("parent_id = ?", parentid)
+	}
 	err = tx.Limit(pagination.Limit()).Offset(pagination.Offset()).Find(&depts).Error
+	total, err = r.Count(ctx, tx)
 	return
 }
 

@@ -2,12 +2,12 @@ package web
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"net/http"
 	"devops-platform/internal/common/web/internal/domain"
 	"devops-platform/internal/common/web/internal/service"
 	"devops-platform/internal/pkg/security"
 	"devops-platform/pkg/types"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type Controller struct {
@@ -63,6 +63,17 @@ func (c *Controller) ReturnSuccess(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"msg": "success"})
 }
 
+// 我需要 定义一个通用的token返回值
+type TokenResponse struct {
+	AccessToken string `json:"accesstoken"`
+}
+
+func (c *Controller) ReturnTokenSuccess(ctx *gin.Context, token string) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data":    TokenResponse{AccessToken: token}})
+
+}
 func (c *Controller) ReturnCreateSuccess(ctx *gin.Context, id types.Long) {
 	ctx.JSON(http.StatusCreated, gin.H{"id": id.String(), "msg": "create success"})
 }

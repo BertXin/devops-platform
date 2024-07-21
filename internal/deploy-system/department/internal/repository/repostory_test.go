@@ -7,6 +7,7 @@ import (
 	"devops-platform/internal/deploy-system/department/internal/domain"
 	"devops-platform/internal/pkg/module"
 	"devops-platform/pkg/beans"
+	"devops-platform/pkg/types"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -62,4 +63,16 @@ func TestUpdateDept(t *testing.T) {
 	updatedDept, getErr := r.GetByID(ctx, dept.ID)
 	assert.NoError(t, getErr, "根据ID获取部门失败")
 	assert.Equal(t, dept.Name, updatedDept.Name, "部门名称更新不匹配")
+}
+
+func TestRepository_FindByName(t *testing.T) {
+	ctx := context.TODO()
+	depts, total, err := r.FindByName(ctx, "IT", 1, types.Pagination{
+		Page:     1,
+		PageSize: 10,
+	})
+	assert.NoError(t, err, "根据名称查询部门失败")
+	assert.NotEmpty(t, depts, "部门列表为空")
+	assert.Equal(t, int64(1), total, "部门数量不匹配")
+	fmt.Println(depts)
 }

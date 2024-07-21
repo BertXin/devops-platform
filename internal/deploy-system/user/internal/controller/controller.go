@@ -60,6 +60,7 @@ func (c *Controller) GetByID(ctx *gin.Context) {
 		c.ReturnErr(ctx, common.RequestNotFoundError("用户信息不存在"))
 		return
 	}
+	//c.ReturnQuerySuccess(ctx,user)
 	ctx.JSON(http.StatusOK, user)
 }
 
@@ -77,6 +78,7 @@ func (c *Controller) CreateUser(ctx *gin.Context) {
 		c.ReturnErr(ctx, common.RequestParamError("入参解析失败", err))
 		return
 	}
+
 	//密码加密
 	command.Password = common.SetPassword(command.Password)
 
