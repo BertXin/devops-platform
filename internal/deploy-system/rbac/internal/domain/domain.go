@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"devops-platform/internal/pkg/enum"
 	"devops-platform/internal/pkg/module"
 	"devops-platform/pkg/common"
 	"devops-platform/pkg/types"
@@ -9,110 +8,95 @@ import (
 	"strings"
 )
 
-type User struct {
+// ```
+//
+//	`name` varchar(128) DEFAULT NULL COMMENT '''角色名称''',
+//	`desc` varchar(128) DEFAULT NULL COMMENT '''角色描述''',
+//	`code` varchar(32) DEFAULT NULL COMMENT '''角色标识''',
+//	`permission_id` bigint(20) DEFAULT NULL COMMENT '''权限id外键''',
+//
+// ```
+type Role struct {
 	module.Module
-	Username string       `json:"username" gorm:"uniqueIndex:user_username_uindex"`
-	Password string       `json:"-" gorm:"default:null"`
-	Name     string       `json:"name"`
-	Mobile   string       `json:"mobile"`
-	Email    string       `json:"email"`
-	Role     enum.SysRole `json:"role"`   // 0:普通用户，1:管理员，2:虚拟用户
-	Enable   enum.Enable  `json:"enable"` //1：启用   2：禁用
+	Name         string     `json:"name"`
+	Desc         string     `json:"desc"`
+	Code         string     `json:"code"`
+	PermissionID types.Long `json:"permission_id"`
 }
 
-func (u *User) VO() module.User {
-	return module.User{
-		ID:   u.ID,
-		Name: u.Name,
+type RoleVO struct {
+	ID           types.Long `json:"id"`
+	Name         string     `json:"name"`
+	Desc         string     `json:"desc"`
+	Code         string     `json:"code"`
+	PermissionID types.Long `json:"permission_id"`
+}
+
+func (r *Role) VO() RoleVO {
+	return RoleVO{
+		ID:           r.ID,
+		Name:         r.Name,
+		Desc:         r.Desc,
+		Code:         r.Code,
+		PermissionID: r.PermissionID,
 	}
 }
 
-type CreateUserCommand struct {
-	Username string       `json:"username"`
-	Password string       `json:"password"`
-	Name     string       `json:"name"`
-	Mobile   string       `json:"mobile"`
-	Email    string       `json:"email"`
-	Role     enum.SysRole `json:"role"`
+type CreateRoleCommand struct {
+	Name         string     `json:"name"`
+	Desc         string     `json:"desc"`
+	Code         string     `json:"code"`
+	PermissionID types.Long `json:"permission_id"`
 }
 
-func (command *CreateUserCommand) ToUser() (*User, error) {
+func (command *CreateRoleCommand) ToRole() (*Role, error) {
 	err := command.Validate()
 	if err != nil {
 		return nil, err
 	}
-	return &User{
-		Username: command.Username,
-		Password: command.Password,
-		Name:     command.Name,
-		Mobile:   command.Mobile,
-		Email:    command.Email,
-		Role:     command.Role,
+	return &Role{
+		Name:         command.Name,
+		Desc:         command.Desc,
+		Code:         command.Code,
+		PermissionID: command.PermissionID,
 	}, nil
 }
 
-func (command *CreateUserCommand) Validate() error {
-
-	command.Username = strings.TrimSpace(command.Username)
-	if command.Username == "" {
-		return common.RequestParamError("", errors.New("用户名不能为空"))
-	}
-	command.Password = strings.TrimSpace(command.Password)
-	if command.Password == "" {
-		return common.RequestParamError("", errors.New("密码不能为空"))
-	}
+// Validate 方法用于验证 CreateRoleCommand 的数据
+func (command *CreateRoleCommand) Validate() error {
 	command.Name = strings.TrimSpace(command.Name)
 	if command.Name == "" {
-		return common.RequestParamError("", errors.New("名称不能为空"))
+		return common.RequestParamError("", errors.New("角色名称不能为空"))
 	}
-
-	command.Mobile = strings.TrimSpace(command.Mobile)
-	command.Email = strings.TrimSpace(command.Email)
-
+	if command.Code == "" {
+		return common.RequestParamError("", errors.New("角色标识不能为空"))
+	}
+	if command.PermissionID == 0 {
+		return common.RequestParamError("", errors.New("权限id不能为空"))
+	}
 	return nil
 }
 
-type ModifyUserCommand struct {
-	ID       types.Long   `json:"-"`
-	Username string       `json:"username"`
-	Password string       `json:"password"`
-	Name     string       `json:"name"`
-	Mobile   string       `json:"mobile"`
-	Email    string       `json:"email"`
-	Role     enum.SysRole `json:"role"`
+// ModifyRoleCommand 定义更新部门的命令
+type ModifyRoleCommand struct {
+	ID           types.Long `json:"-"`
+	Name         string     `json:"name"`
+	Desc         string     `json:"desc"`
+	Code         string     `json:"code"`
+	PermissionID types.Long `json:"permission_id"`
 }
 
-func (command *ModifyUserCommand) Validate() error {
-
-	command.Username = strings.TrimSpace(command.Username)
-	if command.Username == "" {
-		return common.RequestParamError("", errors.New("用户名不能为空"))
-	}
-	command.Password = strings.TrimSpace(command.Password)
-	if command.Password == "" {
-		return common.RequestParamError("", errors.New("密码不能为空"))
-	}
+// Validate 方法用于验证 ModifyRoleCommand 的数据
+func (command *ModifyRoleCommand) Validate() error {
 	command.Name = strings.TrimSpace(command.Name)
 	if command.Name == "" {
-		return common.RequestParamError("", errors.New("名称不能为空"))
+		return common.RequestParamError("", errors.New("角色名称不能为空"))
 	}
-	command.Mobile = strings.TrimSpace(command.Mobile)
-	command.Email = strings.TrimSpace(command.Email)
-
+	if command.Code == "" {
+		return common.RequestParamError("", errors.New("角色标识不能为空"))
+	}
+	if command.PermissionID == 0 {
+		return common.RequestParamError("", errors.New("权限id不能为空"))
+	}
 	return nil
-}
-
-type ModifyUserRoleCommand struct {
-	ID   types.Long   `json:"-"`
-	Role enum.SysRole `json:"role"`
-}
-
-type ModifyUserStatusCommand struct {
-	ID     types.Long  `json:"-"`
-	Status enum.Enable `json:"status"`
-}
-
-type ChangePasswordCommand struct {
-	ID       types.Long `json:"-"`
-	Password string     `json:"password"`
 }

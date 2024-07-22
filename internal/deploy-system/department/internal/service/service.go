@@ -129,6 +129,7 @@ func (s *Service) DeleteDeptByID(ctx context.Context, ID types.Long) (err error)
 		删除部门
 	*/
 	if err = s.Repo.Delete(ctx, ID); err != nil {
+		return
 	}
 	return
 }
