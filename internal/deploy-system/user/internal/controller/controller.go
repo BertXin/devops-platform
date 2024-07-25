@@ -79,6 +79,7 @@ func (c *Controller) CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	command.Validate()
 	//密码加密
 	command.Password = common.SetPassword(command.Password)
 
