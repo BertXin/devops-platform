@@ -36,32 +36,6 @@ func (c *KeyCloakService) init() {
 }
 
 /*
- 根据用户密码换取token信息
-*/
-//func (s *KeyCloakService) GetSsoToken(ctx context.Context, username string, password string) (token string, err error) {
-//	login, err := s.client.Login(ctx, s.config.GetClientId(), s.config.GetClientSecret(), s.config.GetRealm(), username, password)
-//	if err != nil {
-//		logrus.Error("请求API出错：", err)
-//		return
-//	}
-//	accessToken := login.AccessToken
-//	return accessToken, err
-//}
-
-/*
- * 根据token换取登录用户信息
- */
-//func (s *KeyCloakService) CheckToken(ctx context.Context, token string) (checkToken *domain.SsoCheckTokenVO, err error) {
-//	info, err := s.client.GetUserInfo(ctx, token, s.config.GetRealm())
-//	if err != nil {
-//		logrus.Error("请求API出错：", err)
-//		return
-//	}
-//	return domain.ToUser(info), err
-//
-//}
-
-/*
 本地登录
 */
 func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginRequest) (loginuser *domain.LoginUserVO, err error) {
@@ -79,7 +53,7 @@ func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginReq
 	//验证密码
 	if err := common.ValidatePassword(password, login.Password); err != nil {
 		// 返回错误
-		logrus.Error("密码验证错误", err)
+		logrus.Error("密码错误", err)
 		return nil, err
 	}
 
@@ -91,10 +65,3 @@ func (s *KeyCloakService) LocalLogin(ctx context.Context, login *domain.LoginReq
 	}, nil
 
 }
-
-/*
- 获取用户明细，不存在则新增
-*/
-//func (s *KeyCloakService) GetAndCreate(ctx context.Context, token string) (loginUser domain.LoginUserVO, err error) {
-//
-//}

@@ -48,6 +48,12 @@ func (r *Repository) Create(ctx context.Context, user *domain.User) (err error) 
 func (r *Repository) GetPasswordByUsername(ctx context.Context, username string) (password string, err error) {
 	var user domain.User
 	err = r.DB(ctx).Model(&user).Where("username = ?", username).Select("password").First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", errors.New("user not found")
+		}
+		return "", err
+	}
 	return user.Password, err
 }
 

@@ -8,12 +8,11 @@ import (
 	"devops-platform/pkg/common"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"strings"
 )
 
 const LoginError int = 50000
-
-const TokenError int = 50001
 
 type Controller struct {
 	web.Controller
@@ -47,25 +46,25 @@ func (c *Controller) LocalLogin(ctx *gin.Context) {
 
 func (c *Controller) Authentication(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
-	if len(token) == 0 {
-		token = ctx.Query("token")
-	}
+
 	// 确保使用正确的前缀
 	if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
 		ctx.Next()
 		return
 	}
+
 	//去除Bearer
 	token = strings.TrimPrefix(token, domain.TokenPrefix)
 
-	claims, _ := common.ParseToken(token)
-	//if err != nil {
-	//	c.ReturnErr(ctx, common.RequestError(TokenError, errors.New("获取token失败")))
-	//	return
-	//}
+	claims, err := common.ParseToken(token)
+	if err != nil {
+		ctx.Next()
+		return
+	}
+
 	user, err := c.parserUserFromClaims(ctx, claims)
 	if err != nil {
-		c.ReturnErr(ctx, common.RequestParamError("没有这个用户", err))
+		ctx.Next()
 		return
 	}
 
@@ -79,6 +78,7 @@ func (c *Controller) parserUserFromClaims(ctx context.Context, claims *common.Cl
 	// 2. 使用用户ID从数据库查询用户信息
 	user, err := c.SsoLoginService.UserService.GetByID(ctx, userId)
 	if err != nil {
+		logrus.Error("查询用户信息失败", err)
 		return nil, common.WarpError(err)
 	}
 	loginUser = &domain.LoginUserVO{

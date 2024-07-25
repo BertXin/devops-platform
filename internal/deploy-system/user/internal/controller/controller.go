@@ -88,7 +88,7 @@ func (c *Controller) CreateUser(ctx *gin.Context) {
 		c.ReturnErr(ctx, common.ServiceError(500, err))
 		return
 	}
-	ctx.JSON(http.StatusOK, id)
+	c.ReturnCreateSuccess(ctx, id)
 }
 
 type FindByNameAndMobileQuery struct {
