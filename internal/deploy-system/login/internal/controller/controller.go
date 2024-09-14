@@ -48,7 +48,7 @@ func (c *Controller) Authentication(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
 
 	// 确保使用正确的前缀
-	if len(token) == 0 || !strings.HasPrefix(token, domain.TokenPrefix) {
+	if strings.TrimPrefix(token, domain.TokenPrefix) == "undefined" || !strings.HasPrefix(token, domain.TokenPrefix) {
 		ctx.Next()
 		return
 	}
