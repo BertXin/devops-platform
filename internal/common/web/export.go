@@ -4,6 +4,7 @@ import (
 	"devops-platform/internal/common/web/internal/domain"
 	"devops-platform/internal/common/web/internal/service"
 	"devops-platform/internal/pkg/security"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,7 @@ const (
 	BeanAuthenticationVerify = domain.BeanAuthenticationVerify
 )
 
-func SetCurrentUser(ctx *gin.Context, user security.User) {
+func SetCurrentUser(ctx *gin.Context, user *security.UserContext) {
 	service.SetCurrentUser(ctx, user)
 }
 

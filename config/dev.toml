@@ -3,7 +3,7 @@ host = "127.0.0.1"
 port = 3306
 user = "root"
 password = "root"
-db = "skynetcl"
+db = "apexrift-platform"
 max_open = 5
 max_idle = 2
 
@@ -11,14 +11,14 @@ max_idle = 2
 addr = ":80"
 env = "dev"
 
-[sso]
-client_id="rancher"
-client_secret="771e6d6a-e041-4050-a91f-c662ed31bd5c"
-auth_url="https://sso.cognixus.com/auth"
-realm="Cognixus"
-
 [log]
 level = "debug"
 
-[k8s]
-expiration_option = [2,4,8,12,24]
+[casbin]
+model = "config/rbac_model.conf"
+adapter = "file"
+policy = "config/rbac_policy.csv"
+auto_load = true
+auto_load_interval = 30
+
+

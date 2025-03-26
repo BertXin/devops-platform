@@ -1,30 +1,48 @@
 package beans
 
 import (
-"github.com/sirupsen/logrus"
-"reflect"
+	"reflect"
+
+	"github.com/sirupsen/logrus"
 )
 
+// Inject 依赖注入接口
+type Inject interface {
+	// Inject 依赖注入方法
+	Inject(container Container)
+}
+
 func injectBean(bean interface{}) {
-	/*
-	 * 反射bean的类型
-	 */
-	beanType := reflect.TypeOf(bean)
+	// 优先处理实现了Inject接口的bean，使用自定义的注入逻辑
+	if inject, ok := bean.(Inject); ok {
+		// 创建容器
+		container := NewContainer()
+		// 调用Inject方法进行依赖注入
+		inject.Inject(container)
+		return
+	}
 
 	/*
-	 * 如果bean类型是指针，则取指针指向的实际类型
+	 * 只给struct类型注入，减少不必要的反射，增加性能
+	 */
+	beanType := reflect.TypeOf(bean)
+	if beanType == nil || (beanType.Kind() != reflect.Struct && beanType.Kind() != reflect.Ptr) {
+		return
+	}
+	/*
+	 * 如果是指针，则获取指针指向的值的Type
 	 */
 	if beanType.Kind() == reflect.Ptr {
 		beanType = beanType.Elem()
 	}
 	/*
-	 * 只对struct进行反射注入
+	 * 如果bean的Type不是struct类型
 	 */
 	if beanType.Kind() != reflect.Struct {
 		return
 	}
 	/*
-	 * 反射bean的值
+	 * 通过Type获取对应的Value
 	 */
 	beanValue := reflect.ValueOf(bean)
 	/*
@@ -42,6 +60,12 @@ func injectBean(bean interface{}) {
 		 * bean的field的类型
 		 */
 		field := beanType.Field(i)
+
+		// 检查字段是否导出，如果字段首字母小写（非导出），跳过注入
+		if field.PkgPath != "" {
+			continue
+		}
+
 		/*
 		 * 如果bean的field有inject注解
 		 */
@@ -49,20 +73,30 @@ func injectBean(bean interface{}) {
 			/*
 			 * 从beanFactory中依据inject的tag值反射获取对应的值
 			 */
-			value := reflect.ValueOf(factory[tag])
-			if !value.IsValid() {
-				logrus.Panicf("初始化时获取[%s]为空", tag)
+			injectedValue, exists := factory[tag]
+			if !exists || injectedValue == nil {
+				// 使用Error而不是Panic，允许程序继续运行
+				logrus.Errorf("初始化时获取[%s]为空 (bean: %s/%s.%s)", tag, beanType.PkgPath(), beanType.Name(), field.Name)
 				continue
 			}
-			valueType := reflect.TypeOf(factory[tag])
+
+			value := reflect.ValueOf(injectedValue)
+			valueType := reflect.TypeOf(injectedValue)
 			fieldValue := beanValue.FieldByName(field.Name)
+
 			/*
 			 * 判断依赖注入类型是否一致
 			 */
 			if valueType.AssignableTo(field.Type) {
-				fieldValue.Set(value)
+				// 确保字段可设置
+				if fieldValue.CanSet() {
+					fieldValue.Set(value)
+				} else {
+					logrus.Errorf("字段[%s]不可设置，可能是非导出字段", field.Name)
+				}
 			} else {
-				logrus.Panicf("类型不匹配! 不能把bean[%s]注入到[%s/%s.%s]中", tag, beanType.PkgPath(), beanType.Name(), field.Name)
+				// 使用Error而不是Panic
+				logrus.Errorf("类型不匹配! 不能把bean[%s]注入到[%s/%s.%s]中", tag, beanType.PkgPath(), beanType.Name(), field.Name)
 			}
 		}
 	}

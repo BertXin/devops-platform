@@ -3,9 +3,10 @@ package init
 import (
 	"devops-platform/internal/common/config/internal/domain"
 	"devops-platform/pkg/beans"
+	"os"
+
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
-	"os"
 )
 
 func init() {
@@ -25,6 +26,5 @@ func init() {
 	beans.Register(domain.BeanDatabase, &conf.Database)
 	beans.Register(domain.BeanLog, &conf.Log)
 	beans.Register(domain.BeanApp, &conf.App)
-	beans.Register(domain.BeanTekton, &conf.Tekton)
-	beans.Register(domain.BeanSsoLogin, &conf.Sso)
+	beans.Register(domain.BeanCasbin, &conf.Casbin)
 }

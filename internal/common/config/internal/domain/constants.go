@@ -1,10 +1,9 @@
 package domain
 
-//注册bean
+// 注册bean
 const (
 	BeanDatabase = "config-database"
 	BeanLog      = "config-log"
 	BeanApp      = "config-app"
-	BeanTekton   = "config-tekton"
-	BeanSsoLogin = "config-sso"
+	BeanCasbin   = "config-casbin"
 )

@@ -108,3 +108,15 @@ func WarpError(err error) *Error {
 		return ServiceError(500, err)
 	}
 }
+
+// Forbidden 封装禁止访问错误
+func Forbidden(code int, err error) *Error {
+	if err == nil {
+		err = errors.New("禁止访问")
+	}
+	return &Error{
+		error:  err,
+		code:   code,
+		status: 403,
+	}
+}

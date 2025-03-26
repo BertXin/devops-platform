@@ -4,6 +4,7 @@ import (
 	"context"
 	"devops-platform/internal/common/database"
 	"devops-platform/pkg/common"
+
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -76,4 +77,36 @@ func (s *Service) commitTransaction(db *gorm.DB, err error, point string) (errs 
 		errs = err
 	}
 	return
+}
+
+// GetDB 获取数据库连接
+func (s *Service) GetDB(ctx context.Context) *gorm.DB {
+	db, ok := ctx.Value(database.BeanDB).(*gorm.DB)
+	if ok {
+		return db
+	}
+	return s.db
+}
+
+// Tx 创建一个事务上下文
+func (s *Service) Tx(ctx context.Context) (context.Context, error) {
+	return s.BeginTransaction(ctx, "tx")
+}
+
+// CommitTx 提交事务
+func (s *Service) CommitTx(ctx context.Context, point string) error {
+	db, ok := ctx.Value(database.BeanDB).(*gorm.DB)
+	if !ok {
+		return nil
+	}
+	return s.commitTransaction(db, nil, point)
+}
+
+// RollbackTx 回滚事务
+func (s *Service) RollbackTx(ctx context.Context, err error, point string) error {
+	db, ok := ctx.Value(database.BeanDB).(*gorm.DB)
+	if !ok {
+		return err
+	}
+	return s.rollbackTransaction(db, err, point)
 }

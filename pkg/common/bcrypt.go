@@ -5,7 +5,7 @@ import (
 )
 
 // SetPassword加密password
-func SetPassword(password string) (hashString string) {
+func HashPassword(password string) (hashString string) {
 	// 生成密码哈希
 	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	// 转换为字符串

@@ -1,23 +1,123 @@
 basePath: /
 definitions:
-  controller.FindByNameAndMobileResponse:
+  common.ErrorResponse:
     properties:
-      records:
-        description: 记录
-        items:
-          $ref: '#/definitions/domain.User'
-        type: array
-      total:
-        description: 总数
+      code:
+        description: Code 响应码
         type: integer
+      error:
+        description: Error 错误类型
+        type: string
+      message:
+        description: Message 错误消息
+        type: string
+      request_id:
+        description: RequestID 请求ID
+        type: string
+    type: object
+  common.PageResult:
+    properties:
+      list:
+        description: List 列表数据
+      page:
+        description: Page 当前页码
+        type: integer
+      size:
+        description: Size 每页大小
+        type: integer
+      total:
+        description: Total 总数
+        type: integer
+    type: object
+  common.Response:
+    properties:
+      code:
+        description: Code 响应码
+        type: integer
+      data:
+        description: Data 数据
+      message:
+        description: Message 消息
+        type: string
     type: object
   domain.ChangePasswordCommand:
     properties:
-      password:
+      new_password:
+        maxLength: 20
+        minLength: 6
         type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  domain.CreateDepartmentCommand:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+      sort_order:
+        type: integer
+      status:
+        $ref: '#/definitions/enum.Status'
+    required:
+    - code
+    - name
+    type: object
+  domain.CreatePermissionCommand:
+    properties:
+      component:
+        type: string
+      hidden:
+        type: boolean
+      icon:
+        type: string
+      method:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      permission:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        $ref: '#/definitions/enum.Status'
+      type:
+        type: string
+    required:
+    - name
+    - type
+    type: object
+  domain.CreateRoleCommand:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      sort_order:
+        type: integer
+    required:
+    - code
+    - name
     type: object
   domain.CreateUserCommand:
     properties:
+      avatar:
+        type: string
+      dept_id:
+        type: integer
       email:
         type: string
       mobile:
@@ -31,44 +131,172 @@ definitions:
       username:
         type: string
     type: object
-  domain.ModifyUserRoleCommand:
+  domain.DepartmentVO:
     properties:
-      role:
-        $ref: '#/definitions/enum.SysRole'
-    type: object
-  domain.ModifyUserStatusCommand:
-    properties:
-      status:
-        type: integer
-    type: object
-  domain.User:
-    properties:
+      children:
+        items:
+          $ref: '#/definitions/domain.DepartmentVO'
+        type: array
+      code:
+        type: string
       created_at:
         type: string
-      created_by:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      sort_order:
+        type: integer
+      status:
+        $ref: '#/definitions/enum.Status'
+      updated_at:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/domain.UserVO'
+        type: array
+    type: object
+  domain.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  domain.RoleInfo:
+    properties:
+      code:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  domain.UpdateDepartmentCommand:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+      sort:
+        type: integer
+      status:
+        $ref: '#/definitions/enum.Status'
+    required:
+    - code
+    - name
+    type: object
+  domain.UpdatePermissionCommand:
+    properties:
+      component:
+        type: string
+      hidden:
+        type: boolean
+      icon:
+        type: string
+      method:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      permission:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        $ref: '#/definitions/enum.Status'
+      type:
+        type: string
+    required:
+    - name
+    - type
+    type: object
+  domain.UpdateRoleCommand:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        $ref: '#/definitions/enum.Status'
+    required:
+    - code
+    - name
+    type: object
+  domain.UserInfo:
+    properties:
+      avatar:
+        type: string
+      dept_id:
+        type: integer
+      dept_name:
         type: string
       email:
         type: string
-      enable:
-        description: 1：启用   2：禁用
-        type: integer
       id:
-        type: string
-      last_modified_at:
-        type: string
-      last_modified_by:
-        type: string
+        type: integer
       mobile:
         type: string
       name:
         type: string
-      role:
-        allOf:
-        - $ref: '#/definitions/enum.SysRole'
-        description: 0:普通用户，1:管理员，2:虚拟用户
+      role_id:
+        type: integer
+      roles:
+        description: 用户角色列表
+        items:
+          $ref: '#/definitions/domain.RoleInfo'
+        type: array
+      status:
+        type: integer
       username:
         type: string
     type: object
+  domain.UserVO:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_leader:
+        description: 是否为部门负责人
+        type: boolean
+      mobile:
+        type: string
+      real_name:
+        type: string
+      status:
+        $ref: '#/definitions/enum.Status'
+      username:
+        type: string
+    type: object
+  enum.Status:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - StatusDisabled
+    - StatusEnabled
   enum.SysRole:
     enum:
     - 0
@@ -79,68 +307,124 @@ definitions:
     - SysRoleGeneralUser
     - SysRoleAdminUser
     - SysRoleVirtualUser
+  web.TokenResponse:
+    properties:
+      accesstoken:
+        type: string
+    type: object
 host: 127.0.0.1
 info:
   contact:
     email: xin.zhang@hicom.com
     name: zhangxin
-  description: 运维系统 api.
+  description: 运维系统 api
   title: 运维系统
   version: "2.0"
 paths:
-  /user:
+  /api/v1/authorization/check/:permission:
     get:
       consumes:
       - application/json
+      description: 检查当前用户是否拥有指定权限
       parameters:
-      - description: 用户名称
+      - description: 权限标识
+        in: path
+        name: permission
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 检查权限
+      tags:
+      - 权限管理
+  /api/v1/authorization/menus:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的菜单列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取用户菜单
+      tags:
+      - 权限管理
+  /api/v1/authorization/permissions:
+    get:
+      consumes:
+      - application/json
+      description: 获取权限列表，支持分页和条件查询
+      parameters:
+      - description: 权限名称
         in: query
         name: name
         type: string
-      - description: 每页数据条数
+      - description: 权限类型
         in: query
-        name: page_size
+        name: type
         type: string
-      - description: 第几页
+      - description: 状态
+        in: query
+        name: status
+        type: integer
+      - description: 父权限ID
+        in: query
+        name: parent_id
+        type: integer
+      - description: 页码
         in: query
         name: page
-        type: string
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.FindByNameAndMobileResponse'
-      summary: 根据名称查询用户信息
+            $ref: '#/definitions/common.Response'
+      summary: 获取权限列表
       tags:
-      - user
+      - 权限管理
     post:
       consumes:
       - application/json
+      description: 创建新权限
       parameters:
-      - description: 创建用户
+      - description: 权限信息
         in: body
-        name: object
+        name: data
         required: true
         schema:
-          $ref: '#/definitions/domain.CreateUserCommand'
+          $ref: '#/definitions/domain.CreatePermissionCommand'
       produces:
       - application/json
       responses:
-        "201":
-          description: '{"id":"1", "msg": "create success"}'
+        "200":
+          description: OK
           schema:
-            type: string
-      summary: 创建用户
+            $ref: '#/definitions/common.Response'
+      summary: 创建权限
       tags:
-      - user
-  /user/{id}:
-    get:
+      - 权限管理
+  /api/v1/authorization/permissions/detail/{id}:
+    delete:
       consumes:
       - application/json
+      description: 删除指定权限
       parameters:
-      - description: 用户ID
+      - description: 权限ID
         in: path
         name: id
         required: true
@@ -151,23 +435,353 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.User'
-      summary: 获取用户信息
+            $ref: '#/definitions/common.Response'
+      summary: 删除权限
       tags:
-      - user
-  /user/{id}/password:
-    patch:
+      - 权限管理
+    get:
       consumes:
       - application/json
+      description: 获取指定权限的详细信息
       parameters:
-      - description: 用户ID
+      - description: 权限ID
         in: path
         name: id
         required: true
         type: integer
-      - description: 更新用户密码信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取权限详情
+      tags:
+      - 权限管理
+    put:
+      consumes:
+      - application/json
+      description: 更新权限信息
+      parameters:
+      - description: 权限ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 权限信息
         in: body
-        name: object
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdatePermissionCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 更新权限
+      tags:
+      - 权限管理
+  /api/v1/authorization/permissions/tree:
+    get:
+      consumes:
+      - application/json
+      description: 获取权限树结构
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取权限树结构
+      tags:
+      - 权限管理
+  /api/v1/authorization/roles:
+    get:
+      consumes:
+      - application/json
+      description: 获取角色列表，支持分页和条件查询
+      parameters:
+      - description: 角色名称
+        in: query
+        name: name
+        type: string
+      - description: 角色编码
+        in: query
+        name: code
+        type: string
+      - description: 状态
+        in: query
+        name: status
+        type: integer
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取角色列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新角色
+      parameters:
+      - description: 角色信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateRoleCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 创建角色
+      tags:
+      - 角色管理
+  /api/v1/authorization/roles/:id:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 删除角色
+      tags:
+      - 角色管理
+    get:
+      consumes:
+      - application/json
+      description: 获取指定角色的详细信息
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取角色详情
+      tags:
+      - 角色管理
+    put:
+      consumes:
+      - application/json
+      description: 更新角色信息
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateRoleCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 更新角色
+      tags:
+      - 角色管理
+  /api/v1/authorization/roles/:id/permissions:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定角色的权限列表
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取角色权限
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 为指定角色分配权限
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 权限ID列表
+        in: body
+        name: data
+        required: true
+        schema:
+          additionalProperties:
+            items:
+              type: integer
+            type: array
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 为角色分配权限
+      tags:
+      - 角色管理
+  /api/v1/authorization/users/:user_id/permissions:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定用户的权限列表
+      parameters:
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取用户权限
+      tags:
+      - 权限管理
+  /api/v1/authorization/users/:user_id/roles:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定用户的角色列表
+      parameters:
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取用户角色
+      tags:
+      - 权限管理
+    post:
+      consumes:
+      - application/json
+      description: 为指定用户分配角色
+      parameters:
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: 角色ID列表
+        in: body
+        name: data
+        required: true
+        schema:
+          additionalProperties:
+            items:
+              type: integer
+            type: array
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 为用户分配角色
+      tags:
+      - 权限管理
+  /api/v1/authorization/users/:user_id/roles/:role_id:
+    delete:
+      consumes:
+      - application/json
+      description: 移除用户的指定角色
+      parameters:
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: 角色ID
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 移除用户角色
+      tags:
+      - 权限管理
+  /auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: 修改当前用户的密码
+      parameters:
+      - description: 密码信息
+        in: body
+        name: data
         required: true
         schema:
           $ref: '#/definitions/domain.ChangePasswordCommand'
@@ -175,66 +789,526 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"msg": "modify success"}'
+          description: 成功
           schema:
-            type: object
-      summary: 更新用户密码
+            $ref: '#/definitions/common.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "401":
+          description: 未认证
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 修改密码
       tags:
-      - user
-  /user/{id}/role:
-    patch:
+      - 用户
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 使用用户名和密码登录
+      parameters:
+      - description: 登录信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.TokenResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "401":
+          description: 认证失败
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 用户登录
+      tags:
+      - 认证
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: 用户登出系统
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/common.Response'
+        "401":
+          description: 未认证
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 用户登出
+      tags:
+      - 认证
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的详细信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.UserInfo'
+              type: object
+        "401":
+          description: 未认证
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 获取当前用户信息
+      tags:
+      - 用户
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 注册新用户
+      parameters:
+      - description: 用户信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateUserCommand'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 用户注册
+      tags:
+      - 认证
+  /departments:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 页码，默认1
+        in: query
+        name: pageNum
+        type: integer
+      - description: 每页数量，默认20
+        in: query
+        name: pageSize
+        type: integer
+      - description: 部门名称
+        in: query
+        name: name
+        type: string
+      - description: 部门编码
+        in: query
+        name: code
+        type: string
+      - description: 父部门ID
+        in: query
+        name: parentId
+        type: integer
+      - description: 状态：0-禁用，1-启用
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/common.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/domain.DepartmentVO'
+                        type: array
+                    type: object
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 获取部门列表
+      tags:
+      - 部门管理
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门创建参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateDepartmentCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  type: integer
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 创建部门
+      tags:
+      - 部门管理
+  /departments/detail/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "404":
+          description: 部门不存在
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 删除部门
+      tags:
+      - 部门管理
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.DepartmentVO'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "404":
+          description: 部门不存在
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 获取部门详情
+      tags:
+      - 部门管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 部门更新参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateDepartmentCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "404":
+          description: 部门不存在
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 更新部门
+      tags:
+      - 部门管理
+  /departments/detail/{id}/users:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 页码，默认1
+        in: query
+        name: pageNum
+        type: integer
+      - description: 每页数量，默认20
+        in: query
+        name: pageSize
+        type: integer
+      - description: 用户名
+        in: query
+        name: username
+        type: string
+      - description: 真实姓名
+        in: query
+        name: realName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/common.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/domain.UserVO'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 获取部门用户列表
+      tags:
+      - 部门管理
+  /departments/tree:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.DepartmentVO'
+                  type: array
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 获取部门树结构
+      tags:
+      - 部门管理
+  /departments/user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID，默认当前用户
+        in: query
+        name: userId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.DepartmentVO'
+                  type: array
+              type: object
+        "401":
+          description: 未认证
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 获取用户所属部门
+      tags:
+      - 部门管理
+  /departments/users/{userId}/departments/{departmentId}:
+    delete:
       consumes:
       - application/json
       parameters:
       - description: 用户ID
         in: path
-        name: id
+        name: userId
         required: true
         type: integer
-      - description: 更新用户角色信息
-        in: body
-        name: object
+      - description: 部门ID
+        in: path
+        name: departmentId
         required: true
-        schema:
-          $ref: '#/definitions/domain.ModifyUserRoleCommand'
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: '{"msg": "modify success"}'
+          description: 成功
           schema:
-            type: object
-      summary: 更新用户角色信息
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 移除用户部门
       tags:
-      - user
-  /user/{id}/status:
-    patch:
+      - 部门管理
+    post:
       consumes:
       - application/json
       parameters:
       - description: 用户ID
         in: path
-        name: id
+        name: userId
         required: true
         type: integer
-      - description: 更新用户状态  1:启用  2：禁用
-        in: body
-        name: object
+      - description: 部门ID
+        in: path
+        name: departmentId
         required: true
-        schema:
-          $ref: '#/definitions/domain.ModifyUserStatusCommand'
+        type: integer
+      - description: 是否为部门负责人，默认false
+        in: query
+        name: isLeader
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
-          description: '{"msg": "modify success"}'
+          description: 成功
           schema:
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: 更新用户状态
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: 为用户分配部门
       tags:
-      - user
+      - 部门管理
 schemes:
 - http
 - https

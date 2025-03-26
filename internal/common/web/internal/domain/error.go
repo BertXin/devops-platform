@@ -3,7 +3,6 @@ package domain
 import (
 	"devops-platform/internal/pkg/common"
 	"errors"
-	"net/http"
 )
 
 type Error interface {
@@ -13,5 +12,5 @@ type Error interface {
 }
 
 func NewUnauthorizedError(message string) error {
-	return common.Unauthorized(http.StatusUnauthorized, errors.New(message))
+	return common.UnauthorizedError(message, errors.New(message))
 }

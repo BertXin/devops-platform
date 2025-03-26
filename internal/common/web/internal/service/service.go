@@ -4,6 +4,7 @@ import (
 	"context"
 	"devops-platform/internal/common/web/internal/domain"
 	"devops-platform/internal/pkg/security"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,37 +20,29 @@ func GetContext(ctx *gin.Context) (realContext context.Context) {
 	return
 }
 
+// SetContext 设置实际的上下文到gin.Context中
 func SetContext(ctx *gin.Context, realContext context.Context) {
-
-	ctx.Set(domain.RealContext, realContext)
-	return
+	if realContext != nil {
+		ctx.Set(domain.RealContext, realContext)
+	}
 }
 
-func Set(ctx *gin.Context, name string, value interface{}) {
-	realContext := GetContext(ctx)
-	realContext = context.WithValue(realContext, name, value)
-	ctx.Set(domain.RealContext, realContext)
-}
-func Get(ctx *gin.Context, name string) (value interface{}) {
-	return GetContext(ctx).Value(name)
-}
-
-func SetCurrentUser(ctx *gin.Context, user security.User) {
+func SetCurrentUser(ctx *gin.Context, user *security.UserContext) {
 	if user == nil {
 		return
 	}
 	realContext := GetContext(ctx)
-	realContext = security.SetCurrentUser(realContext, user)
-	ctx.Set(domain.RealContext, realContext)
+	realContext = security.SetUserContext(realContext, user)
+	SetContext(ctx, realContext)
 }
 
 func Authenticated(ctx *gin.Context) bool {
 	return CurrentUser(ctx) != nil
 }
 
-func CurrentUser(ctx *gin.Context) (user security.User) {
+func CurrentUser(ctx *gin.Context) (user *security.UserContext) {
 	realContext := GetContext(ctx)
-	return security.CurrentUser(realContext)
+	return security.GetUserContext(realContext)
 }
 
 func AbortErr(ctx *gin.Context, err error) {

@@ -6,8 +6,9 @@ import (
 	"devops-platform/internal/common/web/internal/service"
 	"devops-platform/internal/pkg/security"
 	"devops-platform/pkg/types"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
@@ -26,15 +27,15 @@ func (c *Controller) SetContext(ctx *gin.Context, realContext context.Context) {
 	service.SetContext(ctx, realContext)
 }
 
-func (c *Controller) SetCurrentUser(ctx *gin.Context, user security.User) {
+func (c *Controller) SetCurrentUser(ctx *gin.Context, user *security.UserContext) {
 	realContext := c.GetContext(ctx)
-	realContext = security.SetCurrentUser(realContext, user)
+	realContext = security.SetUserContext(realContext, user)
 	c.SetContext(ctx, realContext)
 }
 
-func (c *Controller) CurrentUser(ctx *gin.Context) security.User {
+func (c *Controller) CurrentUser(ctx *gin.Context) *security.UserContext {
 	realCtx := c.GetContext(ctx)
-	return security.CurrentUser(realCtx)
+	return security.GetUserContext(realCtx)
 }
 
 func (c *Controller) AbortErr(ctx *gin.Context, err error) {

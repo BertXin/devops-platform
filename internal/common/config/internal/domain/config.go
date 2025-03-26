@@ -5,5 +5,5 @@ type Config struct {
 	Log      log
 	App      app
 	Tekton   tekton
-	Sso      sso
+	Casbin   casbin
 }

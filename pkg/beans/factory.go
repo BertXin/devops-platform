@@ -2,6 +2,7 @@ package beans
 
 import (
 	"errors"
+
 	"github.com/sirupsen/logrus"
 )
 

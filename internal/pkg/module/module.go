@@ -19,13 +19,13 @@ type User struct {
 	Name string     `json:"name"`
 }
 
-func (u *User) from(user security.User) {
+func (u *User) from(user *security.UserContext) {
 	if user == nil {
 		u.ID = 0
 		u.Name = "系统"
 	} else {
-		u.ID = user.GetID()
-		u.Name = user.GetName()
+		u.ID = user.UserID
+		u.Name = user.RealName
 	}
 }
 
@@ -34,12 +34,12 @@ func SystemUser() User {
 }
 
 func (m *Module) AuditCreated(ctx context.Context) {
-	m.CreatedBy.from(security.CurrentUser(ctx))
-	m.LastModifiedBy.from(security.CurrentUser(ctx))
+	m.CreatedBy.from(security.GetUserContext(ctx))
+	m.LastModifiedBy.from(security.GetUserContext(ctx))
 }
 
 func (m *Module) AuditModified(ctx context.Context) {
-	m.LastModifiedBy.from(security.CurrentUser(ctx))
+	m.LastModifiedBy.from(security.GetUserContext(ctx))
 }
 
 type Operation struct {
@@ -54,11 +54,11 @@ type CreateOnlyModule struct {
 }
 
 func (o *Operation) OperatingRecord(ctx context.Context) {
-	o.Operator.from(security.CurrentUser(ctx))
+	o.Operator.from(security.GetUserContext(ctx))
 }
 
 func (m *CreateOnlyModule) AuditCreated(ctx context.Context) {
-	m.CreatedBy.from(security.CurrentUser(ctx))
+	m.CreatedBy.from(security.GetUserContext(ctx))
 }
 
 type DeleteStatus int

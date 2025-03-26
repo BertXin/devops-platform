@@ -9,11 +9,10 @@ const (
 	EnvProd    = "prod"
 )
 
-//注册bean
+// 注册bean
 const (
 	BeanDatabase = domain.BeanDatabase
 	BeanLog      = domain.BeanLog
 	BeanApp      = domain.BeanApp
-	BeanTekton   = domain.BeanTekton
-	BeanSsoLogin = domain.BeanSsoLogin
+	BeanCasbin   = domain.BeanCasbin
 )

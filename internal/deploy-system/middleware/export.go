@@ -1,7 +1,13 @@
 package middleware
 
 import (
-	"devops-platform/internal/deploy-system/middleware/internal/authentication/oauth2"
+	"devops-platform/internal/deploy-system/middleware/internal/authentication/jwt"
 )
 
-const BeanAuthenticationOAuth2 = oauth2.BeanAuthenticationOAuth2
+const BeanAuthenticationJWT = jwt.BeanAuthenticationJWT
+
+// JWTAuth 导出JWT认证中间件
+var JWTAuth = jwt.JWTAuth
+
+// OptionalJWTAuth 导出可选的JWT认证中间件
+var OptionalJWTAuth = jwt.OptionalJWTAuth
