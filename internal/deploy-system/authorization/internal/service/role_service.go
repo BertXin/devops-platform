@@ -15,8 +15,8 @@ import (
 // RoleService 角色服务实现
 type RoleService struct {
 	service.Service
-	repo   *repository.Repository `inject:"AuthorizationRepository"`
-	logger *logrus.Logger         `inject:"Logger"`
+	Repo   *repository.Repository `inject:"AuthorizationRepository"`
+	Logger *logrus.Logger         `inject:"Logger"`
 }
 
 func NewRoleService() *RoleService {
@@ -26,7 +26,7 @@ func NewRoleService() *RoleService {
 // CreateRole 创建角色
 func (s *RoleService) CreateRole(ctx context.Context, command *domain.CreateRoleCommand) (roleID types.Long, err error) {
 	// 检查角色编码是否已存在
-	existRole, err := s.repo.GetRoleByCode(ctx, command.Code)
+	existRole, err := s.Repo.GetRoleByCode(ctx, command.Code)
 	if err != nil {
 		return 0, common.InternalError("检查角色编码失败", err)
 	}
@@ -51,7 +51,7 @@ func (s *RoleService) CreateRole(ctx context.Context, command *domain.CreateRole
 	}
 
 	// 保存角色
-	err = s.repo.SaveRole(ctx, role)
+	err = s.Repo.SaveRole(ctx, role)
 	if err != nil {
 		return 0, common.InternalError("保存角色失败", err)
 	}
@@ -62,7 +62,7 @@ func (s *RoleService) CreateRole(ctx context.Context, command *domain.CreateRole
 // UpdateRole 更新角色
 func (s *RoleService) UpdateRole(ctx context.Context, command *domain.UpdateRoleCommand) (err error) {
 	// 检查角色是否存在
-	role, err := s.repo.GetRoleByID(ctx, command.ID)
+	role, err := s.Repo.GetRoleByID(ctx, command.ID)
 	if err != nil {
 		return common.InternalError("查询角色失败", err)
 	}
@@ -88,7 +88,7 @@ func (s *RoleService) UpdateRole(ctx context.Context, command *domain.UpdateRole
 
 	// 检查角色编码是否已存在
 	if command.Code != role.Code {
-		existRole, err := s.repo.GetRoleByCode(ctx, command.Code)
+		existRole, err := s.Repo.GetRoleByCode(ctx, command.Code)
 		if err != nil {
 			return common.InternalError("检查角色编码失败", err)
 		}
@@ -105,7 +105,7 @@ func (s *RoleService) UpdateRole(ctx context.Context, command *domain.UpdateRole
 	role.Status = command.Status
 
 	// 保存角色
-	err = s.repo.SaveRole(ctx, role)
+	err = s.Repo.SaveRole(ctx, role)
 	if err != nil {
 		return common.InternalError("更新角色失败", err)
 	}
@@ -116,7 +116,7 @@ func (s *RoleService) UpdateRole(ctx context.Context, command *domain.UpdateRole
 // DeleteRole 删除角色
 func (s *RoleService) DeleteRole(ctx context.Context, roleID types.Long) (err error) {
 	// 检查角色是否存在
-	role, err := s.repo.GetRoleByID(ctx, roleID)
+	role, err := s.Repo.GetRoleByID(ctx, roleID)
 	if err != nil {
 		return common.InternalError("查询角色失败", err)
 	}
@@ -135,7 +135,7 @@ func (s *RoleService) DeleteRole(ctx context.Context, roleID types.Long) (err er
 	}()
 
 	// 删除角色
-	err = s.repo.DeleteRole(ctx, roleID)
+	err = s.Repo.DeleteRole(ctx, roleID)
 	if err != nil {
 		return common.InternalError("删除角色失败", err)
 	}
@@ -146,7 +146,7 @@ func (s *RoleService) DeleteRole(ctx context.Context, roleID types.Long) (err er
 // GetRoleByID 根据ID获取角色
 func (s *RoleService) GetRoleByID(ctx context.Context, roleID types.Long) (*domain.RoleVO, error) {
 	// 查询角色
-	role, err := s.repo.GetRoleByID(ctx, roleID)
+	role, err := s.Repo.GetRoleByID(ctx, roleID)
 	if err != nil {
 		return nil, common.InternalError("查询角色失败", err)
 	}
@@ -161,7 +161,7 @@ func (s *RoleService) GetRoleByID(ctx context.Context, roleID types.Long) (*doma
 // ListRoles 获取角色列表
 func (s *RoleService) ListRoles(ctx context.Context, query *domain.RoleQuery) ([]*domain.RoleVO, int64, error) {
 	// 查询角色列表
-	roles, total, err := s.repo.ListRoles(ctx, query)
+	roles, total, err := s.Repo.ListRoles(ctx, query)
 	if err != nil {
 		return nil, 0, common.InternalError("查询角色列表失败", err)
 	}
@@ -182,7 +182,7 @@ func (s *RoleService) AssignPermissionsToRole(ctx context.Context, roleID types.
 	}
 
 	// 检查角色是否存在
-	role, err := s.repo.GetRoleByID(ctx, roleID)
+	role, err := s.Repo.GetRoleByID(ctx, roleID)
 	if err != nil {
 		return common.InternalError("查询角色失败", err)
 	}
@@ -201,7 +201,7 @@ func (s *RoleService) AssignPermissionsToRole(ctx context.Context, roleID types.
 	}()
 
 	// 分配权限
-	err = s.repo.AssignPermissionsToRole(ctx, roleID, permissionIDs)
+	err = s.Repo.AssignPermissionsToRole(ctx, roleID, permissionIDs)
 	if err != nil {
 		return common.InternalError("分配权限失败", err)
 	}
@@ -212,7 +212,7 @@ func (s *RoleService) AssignPermissionsToRole(ctx context.Context, roleID types.
 // GetRolePermissions 获取角色权限
 func (s *RoleService) GetRolePermissions(ctx context.Context, roleID types.Long) ([]*domain.PermissionVO, error) {
 	// 检查角色是否存在
-	role, err := s.repo.GetRoleByID(ctx, roleID)
+	role, err := s.Repo.GetRoleByID(ctx, roleID)
 	if err != nil {
 		return nil, common.InternalError("查询角色失败", err)
 	}
@@ -222,7 +222,7 @@ func (s *RoleService) GetRolePermissions(ctx context.Context, roleID types.Long)
 	}
 
 	// 获取角色权限
-	permissions, err := s.repo.GetRolePermissions(ctx, roleID)
+	permissions, err := s.Repo.GetRolePermissions(ctx, roleID)
 	if err != nil {
 		return nil, common.InternalError("获取角色权限失败", err)
 	}

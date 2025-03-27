@@ -7,6 +7,7 @@ import (
 )
 
 func init() {
-	// 注册Casbin Enforcer (使用正式的Bean名称)
+	// 注册Casbin Enforcer
 	beans.Register(domain.BeanEnforcer, &service.CasbinEnforcer{})
+	// 如果需要添加生命周期管理，可以像web模块一样增加生命周期Bean
 }

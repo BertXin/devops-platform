@@ -9,13 +9,14 @@ import (
 	"fmt"
 	"time"
 
+	"devops-platform/internal/common/casbin"
+
 	"gorm.io/gorm"
 )
 
 // Repository 权限仓储实现
 type Repository struct {
 	repository.Repository
-	enforcer domain.CasbinEnforcer
 }
 
 // NewRepository 创建仓储实例
@@ -270,26 +271,22 @@ func (r *Repository) AssignRolesToUser(ctx context.Context, userID types.Long, r
 		}
 
 		// 先清除用户在Casbin中的所有角色
-		if r.enforcer != nil {
-			_, err := r.enforcer.DeleteRolesForUser(userKey)
+		_, err := casbin.DeleteRolesForUser(userKey)
+		if err != nil {
+			return err
+		}
+
+		// 添加新角色到Casbin
+		for _, role := range roles {
+			roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
+			_, err = casbin.AddRoleForUser(userKey, roleKey)
 			if err != nil {
 				return err
 			}
-
-			// 添加新角色到Casbin
-			for _, role := range roles {
-				roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
-				_, err = r.enforcer.AddRoleForUser(userKey, roleKey)
-				if err != nil {
-					return err
-				}
-			}
-
-			// 保存策略
-			return r.enforcer.SavePolicy()
 		}
 
-		return nil
+		// 保存策略
+		return casbin.SavePolicy()
 	})
 }
 
@@ -303,30 +300,26 @@ func (r *Repository) RemoveRoleFromUser(ctx context.Context, userID types.Long, 
 		}
 
 		// 更新Casbin关系
-		if r.enforcer != nil {
-			// 获取角色信息
-			var role domain.Role
-			if err := tx.First(&role, roleID).Error; err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return err
-				}
-				// 角色不存在，不需要处理Casbin
-				return nil
-			}
-
-			userKey := fmt.Sprintf("%s%d", domain.CasbinUserPrefix, userID)
-			roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
-
-			_, err = r.enforcer.DeleteRoleForUser(userKey, roleKey)
-			if err != nil {
+		// 获取角色信息
+		var role domain.Role
+		if err := tx.First(&role, roleID).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
-
-			// 保存策略
-			return r.enforcer.SavePolicy()
+			// 角色不存在，不需要处理Casbin
+			return nil
 		}
 
-		return nil
+		userKey := fmt.Sprintf("%s%d", domain.CasbinUserPrefix, userID)
+		roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
+
+		_, err = casbin.DeleteRoleForUser(userKey, roleKey)
+		if err != nil {
+			return err
+		}
+
+		// 保存策略
+		return casbin.SavePolicy()
 	})
 }
 
@@ -361,17 +354,14 @@ func (r *Repository) AssignPermissionsToRole(ctx context.Context, roleID types.L
 
 		// 如果权限ID列表为空，则仅清空权限即可
 		if len(permissionIDs) == 0 {
-			if r.enforcer != nil {
-				// 清空该角色的所有Casbin策略
-				roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
-				_, err := r.enforcer.RemoveFilteredPolicy(0, roleKey)
-				if err != nil {
-					return err
-				}
-				// 保存策略
-				return r.enforcer.SavePolicy()
+			// 清空该角色的所有Casbin策略
+			roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
+			_, err := casbin.RemoveFilteredPolicy(0, roleKey)
+			if err != nil {
+				return err
 			}
-			return nil
+			// 保存策略
+			return casbin.SavePolicy()
 		}
 
 		// 创建新的角色权限关联
@@ -390,39 +380,35 @@ func (r *Repository) AssignPermissionsToRole(ctx context.Context, roleID types.L
 		}
 
 		// 更新Casbin策略
-		if r.enforcer != nil {
-			// 清空该角色的所有Casbin策略
-			roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
-			_, err := r.enforcer.RemoveFilteredPolicy(0, roleKey)
-			if err != nil {
-				return err
-			}
-
-			// 获取权限信息
-			var permissions []*domain.Permission
-			if err := tx.Where("id IN ?", permissionIDs).Find(&permissions).Error; err != nil {
-				return err
-			}
-
-			// 添加新权限到Casbin
-			for _, perm := range permissions {
-				if perm.Type == domain.PermTypeApi && perm.Path != "" {
-					// 设置ApiPath和ApiMethod用于Casbin集成
-					perm.ApiPath = perm.Path
-					perm.ApiMethod = perm.Method
-
-					_, err = r.enforcer.AddPolicy(roleKey, perm.ApiPath, perm.ApiMethod)
-					if err != nil {
-						return err
-					}
-				}
-			}
-
-			// 保存策略
-			return r.enforcer.SavePolicy()
+		// 清空该角色的所有Casbin策略
+		roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
+		_, err := casbin.RemoveFilteredPolicy(0, roleKey)
+		if err != nil {
+			return err
 		}
 
-		return nil
+		// 获取权限信息
+		var permissions []*domain.Permission
+		if err := tx.Where("id IN ?", permissionIDs).Find(&permissions).Error; err != nil {
+			return err
+		}
+
+		// 添加新权限到Casbin
+		for _, perm := range permissions {
+			if perm.Type == domain.PermTypeApi && perm.Path != "" {
+				// 设置ApiPath和ApiMethod用于Casbin集成
+				perm.ApiPath = perm.Path
+				perm.ApiMethod = perm.Method
+
+				_, err = casbin.AddPolicy(roleKey, perm.ApiPath, perm.ApiMethod)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		// 保存策略
+		return casbin.SavePolicy()
 	})
 }
 
@@ -436,102 +422,91 @@ func (r *Repository) RemovePermissionFromRole(ctx context.Context, roleID types.
 		}
 
 		// 更新Casbin策略
-		if r.enforcer != nil {
-			// 获取角色信息
-			var role domain.Role
-			if err := tx.First(&role, roleID).Error; err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return err
-				}
-				// 角色不存在，不需要处理Casbin
-				return nil
+		// 获取角色信息
+		var role domain.Role
+		if err := tx.First(&role, roleID).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+			// 角色不存在，不需要处理Casbin
+			return nil
+		}
+
+		// 获取权限信息
+		var permission domain.Permission
+		if err := tx.First(&permission, permissionID).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+			// 权限不存在，不需要处理Casbin
+			return nil
+		}
+
+		roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
+
+		if permission.Type == domain.PermTypeApi && permission.Path != "" {
+			// 设置ApiPath和ApiMethod用于Casbin集成
+			permission.ApiPath = permission.Path
+			permission.ApiMethod = permission.Method
+
+			_, err = casbin.RemovePolicy(roleKey, permission.ApiPath, permission.ApiMethod)
+			if err != nil {
+				return err
 			}
 
-			// 获取权限信息
-			var permission domain.Permission
-			if err := tx.First(&permission, permissionID).Error; err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return err
-				}
-				// 权限不存在，不需要处理Casbin
-				return nil
-			}
-
-			roleKey := fmt.Sprintf("%s%s", domain.CasbinRolePrefix, role.Code)
-
-			if permission.Type == domain.PermTypeApi && permission.Path != "" {
-				// 设置ApiPath和ApiMethod用于Casbin集成
-				permission.ApiPath = permission.Path
-				permission.ApiMethod = permission.Method
-
-				_, err = r.enforcer.RemovePolicy(roleKey, permission.ApiPath, permission.ApiMethod)
-				if err != nil {
-					return err
-				}
-
-				// 保存策略
-				return r.enforcer.SavePolicy()
-			}
+			// 保存策略
+			return casbin.SavePolicy()
 		}
 
 		return nil
 	})
 }
 
-// ============= Casbin相关 =============
-
 // AddPolicy 添加策略
-func (r *Repository) AddPolicy(ctx context.Context, role string, path string, method string) error {
-	if r.enforcer != nil {
-		_, err := r.enforcer.AddPolicy(role, path, method)
-		if err != nil {
-			return err
-		}
-		return r.enforcer.SavePolicy()
-	}
-	return nil
+func (r *Repository) AddPolicy(sub, obj, act string) (bool, error) {
+	// 直接使用casbin包提供的全局方法
+	return casbin.AddPolicy(sub, obj, act)
 }
 
 // RemovePolicy 移除策略
 func (r *Repository) RemovePolicy(ctx context.Context, role string, path string, method string) error {
-	if r.enforcer != nil {
-		_, err := r.enforcer.RemovePolicy(role, path, method)
-		if err != nil {
-			return err
-		}
-		return r.enforcer.SavePolicy()
+	_, err := casbin.RemovePolicy(role, path, method)
+	if err != nil {
+		return err
 	}
-	return nil
-}
-
-// AddRoleForUser 为用户添加角色
-func (r *Repository) AddRoleForUser(ctx context.Context, user string, role string) error {
-	if r.enforcer != nil {
-		_, err := r.enforcer.AddRoleForUser(user, role)
-		if err != nil {
-			return err
-		}
-		return r.enforcer.SavePolicy()
-	}
-	return nil
+	return casbin.SavePolicy()
 }
 
 // RemoveRoleForUser 移除用户的角色
 func (r *Repository) RemoveRoleForUser(ctx context.Context, user string, role string) error {
-	if r.enforcer != nil {
-		_, err := r.enforcer.DeleteRoleForUser(user, role)
-		if err != nil {
-			return err
-		}
-		return r.enforcer.SavePolicy()
+	_, err := casbin.DeleteRoleForUser(user, role)
+	if err != nil {
+		return err
 	}
-	return nil
+	return casbin.SavePolicy()
 }
 
 // HasPermission 检查权限
 func (r *Repository) HasPermission(ctx context.Context, user string, path string, method string) (bool, error) {
-	if r.enforcer != nil {
-		return r.enforcer.Enforce(user, path, method)
-	}
-	return false, errors.New("enforcer未初始化")
+	return casbin.Enforce(user, path, method)
+}
+
+// CheckPermission 检查权限
+func (r *Repository) CheckPermission(subject, obj, act string) (bool, error) {
+	return casbin.Enforce(subject, obj, act)
+}
+
+// AddPermissionForUser 添加用户权限
+func (r *Repository) AddPermissionForUser(user, domain, obj, act string) (bool, error) {
+	return casbin.AddPolicy(user, domain, obj, act)
+}
+
+// AddRoleForUser 为用户添加角色
+func (r *Repository) AddRoleForUser(user, role string) (bool, error) {
+	return casbin.AddRoleForUser(user, role)
+}
+
+// HasRoleForUser 判断用户是否拥有指定角色
+func (r *Repository) HasRoleForUser(user, role string) (bool, error) {
+	return casbin.HasRoleForUser(user, role)
 }

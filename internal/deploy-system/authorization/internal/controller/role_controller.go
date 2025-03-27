@@ -48,7 +48,7 @@ func (c *RoleController) CreateRole(ctx *gin.Context) {
 	// 创建角色
 	id, err := c.roleService.CreateRole(ctx, &req)
 	if err != nil {
-		common.ResponseInternalError(ctx, "创建角色失败", err)
+		common.ResponseError(ctx, err)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (c *RoleController) UpdateRole(ctx *gin.Context) {
 	// 更新角色
 	err = c.roleService.UpdateRole(ctx, &req)
 	if err != nil {
-		common.ResponseInternalError(ctx, "更新角色失败", err)
+		common.ResponseError(ctx, err)
 		return
 	}
 
@@ -118,7 +118,7 @@ func (c *RoleController) DeleteRole(ctx *gin.Context) {
 	// 删除角色
 	err = c.roleService.DeleteRole(ctx, types.Long(roleID))
 	if err != nil {
-		common.ResponseInternalError(ctx, "删除角色失败", err)
+		common.ResponseError(ctx, err)
 		return
 	}
 
@@ -145,7 +145,7 @@ func (c *RoleController) GetRoleByID(ctx *gin.Context) {
 	// 获取角色
 	role, err := c.roleService.GetRoleByID(ctx, types.Long(roleID))
 	if err != nil {
-		common.ResponseInternalError(ctx, "获取角色失败", err)
+		common.ResponseError(ctx, err)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (c *RoleController) ListRoles(ctx *gin.Context) {
 	// 获取角色列表
 	roles, total, err := c.roleService.ListRoles(ctx, &query)
 	if err != nil {
-		common.ResponseInternalError(ctx, "获取角色列表失败", err)
+		common.ResponseError(ctx, err)
 		return
 	}
 
@@ -206,7 +206,7 @@ func (c *RoleController) AssignPermissionsToRole(ctx *gin.Context) {
 		return
 	}
 
-	// 获取权限ID列表
+	// 解析权限ID列表
 	var req struct {
 		PermissionIDs []types.Long `json:"permission_ids" binding:"required"`
 	}
@@ -215,10 +215,10 @@ func (c *RoleController) AssignPermissionsToRole(ctx *gin.Context) {
 		return
 	}
 
-	// 分配权限
+	// 为角色分配权限
 	err = c.roleService.AssignPermissionsToRole(ctx, types.Long(roleID), req.PermissionIDs)
 	if err != nil {
-		common.ResponseInternalError(ctx, "分配权限失败", err)
+		common.ResponseError(ctx, err)
 		return
 	}
 
@@ -245,7 +245,7 @@ func (c *RoleController) GetRolePermissions(ctx *gin.Context) {
 	// 获取角色权限
 	permissions, err := c.roleService.GetRolePermissions(ctx, types.Long(roleID))
 	if err != nil {
-		common.ResponseInternalError(ctx, "获取角色权限失败", err)
+		common.ResponseError(ctx, err)
 		return
 	}
 

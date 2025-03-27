@@ -1,6 +1,7 @@
 package service
 
 import (
+	"devops-platform/internal/common/casbin/internal/domain"
 	"devops-platform/internal/common/config"
 	"time"
 
@@ -25,6 +26,129 @@ type casbinConfig interface {
 type CasbinEnforcer struct {
 	enforcer *casbin.Enforcer
 	config   casbinConfig
+}
+
+// 全局enforcer实例
+var globalEnforcer domain.CasbinEnforcer
+
+// Enforce 全局执行权限验证
+func Enforce(rvals ...interface{}) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.Enforce(rvals...)
+}
+
+// LoadPolicy 全局加载策略
+func LoadPolicy() error {
+	if globalEnforcer == nil {
+		return nil
+	}
+	return globalEnforcer.LoadPolicy()
+}
+
+// SavePolicy 全局保存策略
+func SavePolicy() error {
+	if globalEnforcer == nil {
+		return nil
+	}
+	return globalEnforcer.SavePolicy()
+}
+
+// AddPolicy 全局添加策略
+func AddPolicy(params ...interface{}) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.AddPolicy(params...)
+}
+
+// RemovePolicy 全局删除策略
+func RemovePolicy(params ...interface{}) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.RemovePolicy(params...)
+}
+
+// RemoveFilteredPolicy 全局按条件删除策略
+func RemoveFilteredPolicy(fieldIndex int, fieldValues ...string) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.RemoveFilteredPolicy(fieldIndex, fieldValues...)
+}
+
+// AddRoleForUser 全局为用户添加角色
+func AddRoleForUser(user string, role string) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.AddRoleForUser(user, role)
+}
+
+// DeleteRoleForUser 全局删除用户角色
+func DeleteRoleForUser(user string, role string) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.DeleteRoleForUser(user, role)
+}
+
+// DeleteRolesForUser 全局删除用户所有角色
+func DeleteRolesForUser(user string) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.DeleteRolesForUser(user)
+}
+
+// GetRolesForUser 全局获取用户所有角色
+func GetRolesForUser(name string) ([]string, error) {
+	if globalEnforcer == nil {
+		return nil, nil
+	}
+	return globalEnforcer.GetRolesForUser(name)
+}
+
+// GetUsersForRole 全局获取拥有指定角色的所有用户
+func GetUsersForRole(name string) ([]string, error) {
+	if globalEnforcer == nil {
+		return nil, nil
+	}
+	return globalEnforcer.GetUsersForRole(name)
+}
+
+// HasRoleForUser 全局判断用户是否拥有指定角色
+func HasRoleForUser(name string, role string) (bool, error) {
+	if globalEnforcer == nil {
+		return false, nil
+	}
+	return globalEnforcer.HasRoleForUser(name, role)
+}
+
+// GetAllRoles 全局获取所有角色
+func GetAllRoles() ([]string, error) {
+	if globalEnforcer == nil {
+		return nil, nil
+	}
+	return globalEnforcer.GetAllRoles()
+}
+
+// GetAllObjects 全局获取所有资源
+func GetAllObjects() ([]string, error) {
+	if globalEnforcer == nil {
+		return nil, nil
+	}
+	return globalEnforcer.GetAllObjects()
+}
+
+// GetAllSubjects 全局获取所有主体
+func GetAllSubjects() ([]string, error) {
+	if globalEnforcer == nil {
+		return nil, nil
+	}
+	return globalEnforcer.GetAllSubjects()
 }
 
 // 预注入依赖
@@ -77,6 +201,9 @@ func (e *CasbinEnforcer) PreInject(getBean func(string) interface{}) {
 	if cfg.IsAutoLoad() {
 		e.enableAutoLoad(time.Duration(cfg.GetAutoLoadInterval()) * time.Second)
 	}
+
+	// 设置全局实例
+	globalEnforcer = e
 }
 
 // enableAutoLoad 启用自动加载策略
