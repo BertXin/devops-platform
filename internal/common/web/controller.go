@@ -7,6 +7,7 @@ import (
 	"devops-platform/internal/pkg/security"
 	"devops-platform/pkg/types"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -67,12 +68,13 @@ func (c *Controller) ReturnSuccess(ctx *gin.Context) {
 // 我需要 定义一个通用的token返回值
 type TokenResponse struct {
 	AccessToken string `json:"accesstoken"`
+	ExpireAt    int64  `json:"expire"`
 }
 
-func (c *Controller) ReturnTokenSuccess(ctx *gin.Context, token string) {
+func (c *Controller) ReturnTokenSuccess(ctx *gin.Context, token string, expireAt time.Time) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "success",
-		"data":    TokenResponse{AccessToken: token}})
+		"data":    TokenResponse{AccessToken: token, ExpireAt: expireAt.Unix()}})
 
 }
 func (c *Controller) ReturnCreateSuccess(ctx *gin.Context, id types.Long) {

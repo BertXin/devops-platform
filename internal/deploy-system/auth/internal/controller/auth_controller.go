@@ -37,8 +37,10 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		common.ResponseBadRequest(ctx, "请求参数错误: "+err.Error())
 		return
 	}
+	ip := ctx.ClientIP()
+	userAgent := ctx.Request.UserAgent()
 
-	tokenInfo, err := c.Service.Login(ctx, req.Username, req.Password)
+	tokenInfo, err := c.Service.Login(ctx, req.Username, req.Password, ip, userAgent)
 	if err != nil {
 		common.ResponseError(ctx, err)
 		return
@@ -53,7 +55,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 	c.SetCurrentUser(ctx, sessionUser.ToUserContext())
 
 	// 返回认证令牌
-	c.ReturnTokenSuccess(ctx, tokenInfo.Token)
+	c.ReturnTokenSuccess(ctx, tokenInfo.Token, tokenInfo.ExpireAt)
 }
 
 // Logout 用户登出

@@ -13,8 +13,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/gin-gonic/gin"
 )
 
 // AuthService 认证服务实现
@@ -29,7 +27,7 @@ func NewAuthService() *AuthService {
 }
 
 // Login 用户登录
-func (s *AuthService) Login(ctx context.Context, username, password string) (*domain.TokenInfo, error) {
+func (s *AuthService) Login(ctx context.Context, username, password, ip, userAgent string) (*domain.TokenInfo, error) {
 	// 查找用户
 	user, err := s.Repo.GetByUsername(ctx, username)
 	if err != nil {
@@ -39,20 +37,20 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*do
 
 	if user == nil {
 		// 记录登录失败日志
-		s.saveLoginLog(ctx, 0, username, domain.LoginTypePassword, 0, "用户不存在")
+		s.saveLoginLog(ctx, 0, username, domain.LoginTypePassword, 0, "用户不存在", ip, userAgent)
 		return nil, common.UnauthorizedError("用户名或密码错误", nil)
 	}
 
 	// 验证密码
 	if !user.VerifyPassword(password) {
 		// 记录登录失败日志
-		s.saveLoginLog(ctx, user.ID, user.Username, domain.LoginTypePassword, 0, "密码错误")
+		s.saveLoginLog(ctx, user.ID, user.Username, domain.LoginTypePassword, 0, "密码错误", ip, userAgent)
 		return nil, common.UnauthorizedError("用户名或密码错误", nil)
 	}
 
 	// 检查用户状态
 	if user.Status != 1 {
-		s.saveLoginLog(ctx, user.ID, user.Username, domain.LoginTypePassword, 0, "账户已禁用")
+		s.saveLoginLog(ctx, user.ID, user.Username, domain.LoginTypePassword, 0, "账户已禁用", ip, userAgent)
 		return nil, common.ForbiddenError("账户已被禁用", nil)
 	}
 
@@ -86,7 +84,7 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*do
 	}
 
 	// 记录登录成功日志
-	s.saveLoginLog(txCtx, user.ID, user.Username, domain.LoginTypePassword, 1, "登录成功")
+	s.saveLoginLog(txCtx, user.ID, user.Username, domain.LoginTypePassword, 1, "登录成功", ip, userAgent)
 
 	// 构建令牌信息
 	tokenInfo := &domain.TokenInfo{
@@ -104,7 +102,7 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*do
 // generateToken 生成JWT令牌
 func (s *AuthService) generateToken(user *domain.User) (string, time.Time, error) {
 	// 设置过期时间
-	expireTime := time.Now().Add(24 * time.Hour)
+	expireTime := time.Now().Add(3 * time.Hour)
 
 	claims := jwt.Claims{
 		UserID:   user.ID,
@@ -253,14 +251,7 @@ func (s *AuthService) RegisterUser(ctx context.Context, command *domain.CreateUs
 }
 
 // saveLoginLog 保存登录日志
-func (s *AuthService) saveLoginLog(ctx context.Context, userID types.Long, username, loginType string, status int, message string) {
-	// 获取客户端信息
-	var ip, userAgent string
-	if ginCtx, ok := ctx.(*gin.Context); ok {
-		ip = ginCtx.ClientIP()
-		userAgent = ginCtx.Request.UserAgent()
-	}
-
+func (s *AuthService) saveLoginLog(ctx context.Context, userID types.Long, username, loginType string, status int, message, ip, userAgent string) {
 	// 创建登录日志
 	log := &domain.LoginLog{
 		UserID:    userID,

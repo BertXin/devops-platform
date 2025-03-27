@@ -15,8 +15,8 @@ import (
 // PermissionService 权限服务实现
 type PermissionService struct {
 	service.Service
-	repo   *repository.Repository `inject:"AuthorizationRepository"`
-	logger *logrus.Logger         `inject:"Logger"`
+	Repo   *repository.Repository `inject:"AuthorizationRepository"`
+	Logger *logrus.Logger         `inject:"Logger"`
 }
 
 func NewPermissionService() *PermissionService {
@@ -27,7 +27,7 @@ func NewPermissionService() *PermissionService {
 func (s *PermissionService) CreatePermission(ctx context.Context, command *domain.CreatePermissionCommand) (permissionID types.Long, err error) {
 	// 如果指定了父权限，检查父权限是否存在
 	if command.ParentID > 0 {
-		parent, err := s.repo.GetPermissionByID(ctx, command.ParentID)
+		parent, err := s.Repo.GetPermissionByID(ctx, command.ParentID)
 		if err != nil {
 			return 0, common.InternalError("查询父权限失败", err)
 		}
@@ -53,7 +53,7 @@ func (s *PermissionService) CreatePermission(ctx context.Context, command *domai
 	}
 
 	// 保存权限
-	err = s.repo.SavePermission(ctx, permission)
+	err = s.Repo.SavePermission(ctx, permission)
 	if err != nil {
 		return 0, common.InternalError("保存权限失败", err)
 	}
@@ -64,7 +64,7 @@ func (s *PermissionService) CreatePermission(ctx context.Context, command *domai
 // UpdatePermission 更新权限
 func (s *PermissionService) UpdatePermission(ctx context.Context, command *domain.UpdatePermissionCommand) (err error) {
 	// 检查权限是否存在
-	permission, err := s.repo.GetPermissionByID(ctx, command.ID)
+	permission, err := s.Repo.GetPermissionByID(ctx, command.ID)
 	if err != nil {
 		return common.InternalError("查询权限失败", err)
 	}
@@ -75,7 +75,7 @@ func (s *PermissionService) UpdatePermission(ctx context.Context, command *domai
 
 	// 如果指定了父权限，检查父权限是否存在
 	if command.ParentID > 0 && command.ParentID != permission.ParentID {
-		parent, err := s.repo.GetPermissionByID(ctx, command.ParentID)
+		parent, err := s.Repo.GetPermissionByID(ctx, command.ParentID)
 		if err != nil {
 			return common.InternalError("查询父权限失败", err)
 		}
@@ -119,7 +119,7 @@ func (s *PermissionService) UpdatePermission(ctx context.Context, command *domai
 	permission.SortOrder = command.SortOrder
 
 	// 保存权限
-	err = s.repo.SavePermission(ctx, permission)
+	err = s.Repo.SavePermission(ctx, permission)
 	if err != nil {
 		return common.InternalError("更新权限失败", err)
 	}
@@ -130,7 +130,7 @@ func (s *PermissionService) UpdatePermission(ctx context.Context, command *domai
 // DeletePermission 删除权限
 func (s *PermissionService) DeletePermission(ctx context.Context, permissionID types.Long) (err error) {
 	// 检查权限是否存在
-	permission, err := s.repo.GetPermissionByID(ctx, permissionID)
+	permission, err := s.Repo.GetPermissionByID(ctx, permissionID)
 	if err != nil {
 		return common.InternalError("查询权限失败", err)
 	}
@@ -149,7 +149,7 @@ func (s *PermissionService) DeletePermission(ctx context.Context, permissionID t
 	}()
 
 	// 删除权限
-	err = s.repo.DeletePermission(ctx, permissionID)
+	err = s.Repo.DeletePermission(ctx, permissionID)
 	if err != nil {
 		return common.InternalError("删除权限失败", err)
 	}
@@ -160,7 +160,7 @@ func (s *PermissionService) DeletePermission(ctx context.Context, permissionID t
 // GetPermissionByID 根据ID获取权限
 func (s *PermissionService) GetPermissionByID(ctx context.Context, permissionID types.Long) (*domain.PermissionVO, error) {
 	// 查询权限
-	permission, err := s.repo.GetPermissionByID(ctx, permissionID)
+	permission, err := s.Repo.GetPermissionByID(ctx, permissionID)
 	if err != nil {
 		return nil, common.InternalError("查询权限失败", err)
 	}
@@ -175,7 +175,7 @@ func (s *PermissionService) GetPermissionByID(ctx context.Context, permissionID 
 // ListPermissions 获取权限列表
 func (s *PermissionService) ListPermissions(ctx context.Context, query *domain.PermissionQuery) ([]*domain.PermissionVO, int64, error) {
 	// 查询权限列表
-	permissions, total, err := s.repo.ListPermissions(ctx, query)
+	permissions, total, err := s.Repo.ListPermissions(ctx, query)
 	if err != nil {
 		return nil, 0, common.InternalError("查询权限列表失败", err)
 	}
@@ -192,7 +192,7 @@ func (s *PermissionService) ListPermissions(ctx context.Context, query *domain.P
 // GetPermissionTree 获取权限树结构
 func (s *PermissionService) GetPermissionTree(ctx context.Context) ([]*domain.PermissionVO, error) {
 	// 获取所有权限
-	permissions, err := s.repo.GetAllPermissions(ctx)
+	permissions, err := s.Repo.GetAllPermissions(ctx)
 	if err != nil {
 		return nil, common.InternalError("获取权限列表失败", err)
 	}
