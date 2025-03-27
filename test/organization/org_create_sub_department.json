@@ -1,0 +1,8 @@
+{
+  "parent_id": 1,
+  "name": "后端开发组",
+  "code": "DEV-BACKEND",
+  "description": "负责后端开发",
+  "status": 1,
+  "sort_order": 1
+} 

@@ -1,0 +1,6 @@
+{
+  "name": "管理员角色",
+  "code": "admin",
+  "description": "系统管理员角色，拥有所有权限",
+  "sort_order": 1
+} 

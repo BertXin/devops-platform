@@ -1,0 +1,9 @@
+{
+  "parent_id": 2,
+  "name": "添加角色按钮",
+  "type": "button",
+  "permission": "system:role:add",
+  "status": 1,
+  "hidden": false,
+  "sort_order": 1
+} 

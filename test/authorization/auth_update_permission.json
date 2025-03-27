@@ -1,0 +1,12 @@
+{
+  "parent_id": 1,
+  "name": "角色管理更新",
+  "type": "menu",
+  "path": "roles",
+  "icon": "users",
+  "component": "system/role/index",
+  "permission": "system:role",
+  "status": 1,
+  "hidden": false,
+  "sort_order": 1
+} 
