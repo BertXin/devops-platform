@@ -1,2 +1,3 @@
 p, admin, /*, *
-g, 1, admin 
+g, 1, admin
+g, u_2, r_platform_admin

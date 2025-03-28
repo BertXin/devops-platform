@@ -34,7 +34,7 @@ type User struct {
 
 // TableName 指定数据库表名
 func (User) TableName() string {
-	return "users"
+	return "user"
 }
 
 // ToAuthUser 转换为认证用户

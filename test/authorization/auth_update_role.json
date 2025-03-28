@@ -1,7 +1,0 @@
-{
-  "name": "高级管理员",
-  "code": "admin",
-  "description": "系统高级管理员，可以管理系统设置",
-  "status": 1,
-  "sort_order": 1
-} 

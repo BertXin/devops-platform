@@ -229,9 +229,9 @@ func (r *Repository) GetAllPermissions(ctx context.Context) ([]*domain.Permissio
 // GetUserRoles 获取用户的角色列表
 func (r *Repository) GetUserRoles(ctx context.Context, userID types.Long) ([]*domain.Role, error) {
 	var roles []*domain.Role
-	err := r.DB(ctx).Table("t_roles").
-		Joins("JOIN t_user_roles ON t_roles.id = t_user_roles.role_id").
-		Where("t_user_roles.user_id = ?", userID).
+	err := r.DB(ctx).Table("role").
+		Joins("JOIN user_role ON role.id = user_role.role_id").
+		Where("user_role.user_id = ?", userID).
 		Find(&roles).Error
 	if err != nil {
 		return nil, err
@@ -328,9 +328,9 @@ func (r *Repository) RemoveRoleFromUser(ctx context.Context, userID types.Long, 
 // GetRolePermissions 获取角色的权限列表
 func (r *Repository) GetRolePermissions(ctx context.Context, roleID types.Long) ([]*domain.Permission, error) {
 	var permissions []*domain.Permission
-	err := r.DB(ctx).Table("t_permissions").
-		Joins("JOIN t_role_permissions ON t_permissions.id = t_role_permissions.permission_id").
-		Where("t_role_permissions.role_id = ?", roleID).
+	err := r.DB(ctx).Table("permission").
+		Joins("JOIN role_permission ON permission.id = role_permission.permission_id").
+		Where("role_permission.role_id = ?", roleID).
 		Find(&permissions).Error
 	if err != nil {
 		return nil, err

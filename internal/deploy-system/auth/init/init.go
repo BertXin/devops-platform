@@ -18,7 +18,7 @@ func init() {
 	beans.Register(domain.BeanService, service.NewAuthService())
 
 	// 注册用户查询服务
-	beans.Register(domain.BeanUserQuery, service.NewUserQueryService())
+	beans.Register(domain.BeanUserQuery, service.NewUserQuery())
 
 	// 注册控制器
 	beans.Register(domain.BeanController, controller.NewAuthController())

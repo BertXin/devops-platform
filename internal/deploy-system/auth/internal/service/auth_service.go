@@ -5,6 +5,7 @@ import (
 	"devops-platform/internal/common/service"
 	"devops-platform/internal/deploy-system/auth/internal/domain"
 	"devops-platform/internal/deploy-system/auth/internal/repository"
+	"devops-platform/internal/deploy-system/organization"
 	"devops-platform/internal/pkg/common"
 	"devops-platform/internal/pkg/security"
 	"devops-platform/pkg/common/jwt"
@@ -18,8 +19,9 @@ import (
 // AuthService 认证服务实现
 type AuthService struct {
 	service.Service
-	Repo   *repository.Repository `inject:"AuthRepository"`
-	Logger *logrus.Logger         `inject:"Logger"`
+	Repo              *repository.Repository         `inject:"AuthRepository"`
+	Logger            *logrus.Logger                 `inject:"Logger"`
+	DepartmentService organization.DepartmentService `inject:"DepartmentService"`
 }
 
 func NewAuthService() *AuthService {
@@ -27,7 +29,7 @@ func NewAuthService() *AuthService {
 }
 
 // Login 用户登录
-func (s *AuthService) Login(ctx context.Context, username, password, ip, userAgent string) (*domain.TokenInfo, error) {
+func (s *AuthService) Login(ctx context.Context, username, password, ip, userAgent string) (tokeninfo *domain.TokenInfo, err error) {
 	// 查找用户
 	user, err := s.Repo.GetByUsername(ctx, username)
 	if err != nil {
@@ -61,30 +63,24 @@ func (s *AuthService) Login(ctx context.Context, username, password, ip, userAge
 		return nil, common.InternalError("生成令牌失败", err)
 	}
 
-	// 创建事务上下文
-	txCtx, err := s.Tx(ctx)
+	ctx, err = s.BeginTransaction(ctx, "auth service login")
 	if err != nil {
-		return nil, common.InternalError("创建事务失败", err)
+		return
 	}
 	defer func() {
-		// 根据err状态提交或回滚事务
-		if err != nil {
-			s.RollbackTx(txCtx, err, "auth service login")
-		} else {
-			s.CommitTx(txCtx, "auth service login")
-		}
+		err = s.FinishTransaction(ctx, err, "auth service login")
 	}()
 
 	// 更新最后登录时间
 	user.UpdateLastLogin()
-	err = s.Repo.Save(txCtx, user)
+	err = s.Repo.Save(ctx, user)
 	if err != nil {
 		s.Logger.WithError(err).WithField("userId", user.ID).Error("更新登录时间失败")
 		return nil, common.InternalError("更新登录时间失败", err)
 	}
 
 	// 记录登录成功日志
-	s.saveLoginLog(txCtx, user.ID, user.Username, domain.LoginTypePassword, 1, "登录成功", ip, userAgent)
+	s.saveLoginLog(ctx, user.ID, user.Username, domain.LoginTypePassword, 1, "登录成功", ip, userAgent)
 
 	// 构建令牌信息
 	tokenInfo := &domain.TokenInfo{
@@ -141,8 +137,16 @@ func (s *AuthService) GetUserInfo(ctx context.Context, userID types.Long) (*doma
 		return nil, common.NotFoundError("用户不存在", nil)
 	}
 
-	// 这里可以通过deptService获取部门名称，简化处理返回空
+	// 获取部门名称
 	deptName := ""
+	if user.DeptID > 0 && s.DepartmentService != nil {
+		dept, err := s.DepartmentService.GetDepartmentByID(ctx, user.DeptID)
+		if err == nil && dept != nil {
+			deptName = dept.Name
+		} else {
+			s.Logger.WithError(err).WithField("deptID", user.DeptID).Warn("获取部门信息失败")
+		}
+	}
 
 	return user.ToUserInfo(deptName), nil
 }
@@ -195,7 +199,7 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID types.Long, old
 	// 创建事务上下文
 	ctx, err = s.BeginTransaction(ctx, "auth service change password")
 	if err != nil {
-		return err
+		return
 	}
 	defer func() {
 		err = s.FinishTransaction(ctx, err, "auth service change password")
