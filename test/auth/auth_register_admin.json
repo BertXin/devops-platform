@@ -1,0 +1,10 @@
+{
+  "username": "devops_admin",
+  "password": "Devops@2024",
+  "name": "运维管理员",
+  "mobile": "13812345678",
+  "email": "devops@example.com",
+  "avatar": "https://www.dnsjia.com/luban/img/head.png",
+  "dept_id": 1,
+  "role": 1
+} 

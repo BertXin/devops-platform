@@ -1,0 +1,6 @@
+{
+  "name": "平台管理员",
+  "code": "platform_admin",
+  "description": "平台最高权限管理员角色",
+  "sort_order": 1
+} 

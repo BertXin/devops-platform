@@ -1,0 +1,9 @@
+{
+  "parent_id": 2,
+  "name": "用户创建",
+  "type": "button",
+  "permission": "system:user:create",
+  "status": 1,
+  "hidden": false,
+  "sort_order": 1
+} 

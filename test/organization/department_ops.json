@@ -1,0 +1,8 @@
+{
+  "parent_id": 1,
+  "name": "运维组",
+  "code": "ops",
+  "description": "负责系统运维",
+  "status": 1,
+  "sort_order": 3
+} 

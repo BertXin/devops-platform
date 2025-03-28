@@ -1,0 +1,12 @@
+{
+  "parent_id": 1,
+  "name": "用户管理",
+  "type": "menu",
+  "path": "/system/users",
+  "icon": "user",
+  "component": "system/user/index",
+  "permission": "system:user:list",
+  "status": 1,
+  "hidden": false,
+  "sort_order": 1
+} 

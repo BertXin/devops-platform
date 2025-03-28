@@ -1,0 +1,8 @@
+{
+  "parent_id": 0,
+  "name": "技术部",
+  "code": "tech",
+  "description": "负责系统技术研发",
+  "status": 1,
+  "sort_order": 1
+} 

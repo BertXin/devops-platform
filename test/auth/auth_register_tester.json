@@ -1,0 +1,10 @@
+{
+  "username": "tester01",
+  "password": "Test@2024",
+  "name": "李测试",
+  "mobile": "13912345678",
+  "email": "tester@example.com",
+  "avatar": "https://www.dnsjia.com/luban/img/head.png",
+  "dept_id": 3,
+  "role": 2
+} 
