@@ -16,6 +16,353 @@
     "host": "127.0.0.1",
     "basePath": "/",
     "paths": {
+        "/api/v1/app-groups": {
+            "get": {
+                "description": "查询应用分组列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用分组"
+                ],
+                "summary": "查询应用分组列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建应用分组",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用分组"
+                ],
+                "summary": "创建应用分组",
+                "parameters": [
+                    {
+                        "description": "分组信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/app-groups/apps": {
+            "post": {
+                "description": "添加应用到分组",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用分组"
+                ],
+                "summary": "添加应用到分组",
+                "parameters": [
+                    {
+                        "description": "关联信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/apps": {
+            "get": {
+                "description": "查询应用列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用管理"
+                ],
+                "summary": "查询应用列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "应用名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "应用状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分组ID",
+                        "name": "group_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页大小",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建新应用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用管理"
+                ],
+                "summary": "创建应用",
+                "parameters": [
+                    {
+                        "description": "应用信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateAppCommand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/apps/{id}": {
+            "get": {
+                "description": "根据ID获取应用详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用管理"
+                ],
+                "summary": "获取应用详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "更新应用信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用管理"
+                ],
+                "summary": "更新应用",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "应用信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UpdateAppCommand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除应用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用管理"
+                ],
+                "summary": "删除应用",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/apps/{id}/hpa": {
+            "get": {
+                "description": "获取应用HPA自动伸缩配置",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用管理"
+                ],
+                "summary": "获取应用HPA配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "配置应用HPA自动伸缩",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用管理"
+                ],
+                "summary": "配置应用HPA",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "HPA配置",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/authorization/check/:permission": {
             "get": {
                 "description": "检查当前用户是否拥有指定权限",
@@ -687,6 +1034,213 @@
                         "type": "integer",
                         "description": "角色ID",
                         "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/deployments": {
+            "get": {
+                "description": "查询部署历史列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "发布管理"
+                ],
+                "summary": "查询部署历史",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "app_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "环境ID",
+                        "name": "env_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/deployments/{id}": {
+            "get": {
+                "description": "获取部署记录详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "发布管理"
+                ],
+                "summary": "获取部署记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "部署ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/deployments/{id}/rollback": {
+            "post": {
+                "description": "回滚部署",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "发布管理"
+                ],
+                "summary": "回滚部署",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "部署ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/envs": {
+            "get": {
+                "description": "查询环境列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用环境"
+                ],
+                "summary": "查询环境列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建应用环境",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用环境"
+                ],
+                "summary": "创建应用环境",
+                "parameters": [
+                    {
+                        "description": "环境信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateEnvCommand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/releases": {
+            "post": {
+                "description": "创建发布计划",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "发布管理"
+                ],
+                "summary": "创建发布计划",
+                "parameters": [
+                    {
+                        "description": "发布计划信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateReleaseCommand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/releases/{id}/execute": {
+            "post": {
+                "description": "执行发布计划",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "发布管理"
+                ],
+                "summary": "执行发布计划",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "发布计划ID",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1661,6 +2215,25 @@
                 }
             }
         },
+        "domain.CreateAppCommand": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "creator": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                }
+            }
+        },
         "domain.CreateDepartmentCommand": {
             "type": "object",
             "required": [
@@ -1685,6 +2258,31 @@
                 },
                 "status": {
                     "$ref": "#/definitions/enum.Status"
+                }
+            }
+        },
+        "domain.CreateEnvCommand": {
+            "type": "object",
+            "required": [
+                "cluster_id",
+                "name",
+                "namespace"
+            ],
+            "properties": {
+                "cluster_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "namespace": {
+                    "type": "string",
+                    "maxLength": 100
                 }
             }
         },
@@ -1727,6 +2325,31 @@
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "domain.CreateReleaseCommand": {
+            "type": "object",
+            "required": [
+                "app_id",
+                "env_id",
+                "strategy",
+                "version"
+            ],
+            "properties": {
+                "app_id": {
+                    "type": "integer"
+                },
+                "env_id": {
+                    "type": "integer"
+                },
+                "strategy": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "version": {
+                    "type": "string",
+                    "maxLength": 50
                 }
             }
         },
@@ -1850,6 +2473,29 @@
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "domain.UpdateAppCommand": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "status": {
+                    "type": "string",
+                    "maxLength": 20
                 }
             }
         },
@@ -2047,6 +2693,9 @@
             "properties": {
                 "accesstoken": {
                     "type": "string"
+                },
+                "expire": {
+                    "type": "integer"
                 }
             }
         }

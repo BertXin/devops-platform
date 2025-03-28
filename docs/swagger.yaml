@@ -52,6 +52,19 @@ definitions:
     - new_password
     - old_password
     type: object
+  domain.CreateAppCommand:
+    properties:
+      creator:
+        type: integer
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        type: string
+    required:
+    - name
+    type: object
   domain.CreateDepartmentCommand:
     properties:
       code:
@@ -69,6 +82,24 @@ definitions:
     required:
     - code
     - name
+    type: object
+  domain.CreateEnvCommand:
+    properties:
+      cluster_id:
+        type: integer
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      namespace:
+        maxLength: 100
+        type: string
+    required:
+    - cluster_id
+    - name
+    - namespace
     type: object
   domain.CreatePermissionCommand:
     properties:
@@ -97,6 +128,24 @@ definitions:
     required:
     - name
     - type
+    type: object
+  domain.CreateReleaseCommand:
+    properties:
+      app_id:
+        type: integer
+      env_id:
+        type: integer
+      strategy:
+        maxLength: 50
+        type: string
+      version:
+        maxLength: 50
+        type: string
+    required:
+    - app_id
+    - env_id
+    - strategy
+    - version
     type: object
   domain.CreateRoleCommand:
     properties:
@@ -178,6 +227,22 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  domain.UpdateAppCommand:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 100
+        type: string
+      status:
+        maxLength: 20
+        type: string
+    required:
+    - id
     type: object
   domain.UpdateDepartmentCommand:
     properties:
@@ -311,6 +376,8 @@ definitions:
     properties:
       accesstoken:
         type: string
+      expire:
+        type: integer
     type: object
 host: 127.0.0.1
 info:
@@ -321,6 +388,232 @@ info:
   title: 运维系统
   version: "2.0"
 paths:
+  /api/v1/app-groups:
+    get:
+      description: 查询应用分组列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 查询应用分组列表
+      tags:
+      - 应用分组
+    post:
+      consumes:
+      - application/json
+      description: 创建应用分组
+      parameters:
+      - description: 分组信息
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 创建应用分组
+      tags:
+      - 应用分组
+  /api/v1/app-groups/apps:
+    post:
+      consumes:
+      - application/json
+      description: 添加应用到分组
+      parameters:
+      - description: 关联信息
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 添加应用到分组
+      tags:
+      - 应用分组
+  /api/v1/apps:
+    get:
+      description: 查询应用列表
+      parameters:
+      - description: 应用名称
+        in: query
+        name: name
+        type: string
+      - description: 应用状态
+        in: query
+        name: status
+        type: string
+      - description: 分组ID
+        in: query
+        name: group_id
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页大小
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 查询应用列表
+      tags:
+      - 应用管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新应用
+      parameters:
+      - description: 应用信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateAppCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 创建应用
+      tags:
+      - 应用管理
+  /api/v1/apps/{id}:
+    delete:
+      description: 删除应用
+      parameters:
+      - description: 应用ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 删除应用
+      tags:
+      - 应用管理
+    get:
+      description: 根据ID获取应用详情
+      parameters:
+      - description: 应用ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取应用详情
+      tags:
+      - 应用管理
+    put:
+      consumes:
+      - application/json
+      description: 更新应用信息
+      parameters:
+      - description: 应用ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 应用信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateAppCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 更新应用
+      tags:
+      - 应用管理
+  /api/v1/apps/{id}/hpa:
+    get:
+      description: 获取应用HPA自动伸缩配置
+      parameters:
+      - description: 应用ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取应用HPA配置
+      tags:
+      - 应用管理
+    post:
+      consumes:
+      - application/json
+      description: 配置应用HPA自动伸缩
+      parameters:
+      - description: 应用ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: HPA配置
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 配置应用HPA
+      tags:
+      - 应用管理
   /api/v1/authorization/check/:permission:
     get:
       consumes:
@@ -773,6 +1066,141 @@ paths:
       summary: 移除用户角色
       tags:
       - 权限管理
+  /api/v1/deployments:
+    get:
+      description: 查询部署历史列表
+      parameters:
+      - description: 应用ID
+        in: query
+        name: app_id
+        type: integer
+      - description: 环境ID
+        in: query
+        name: env_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 查询部署历史
+      tags:
+      - 发布管理
+  /api/v1/deployments/{id}:
+    get:
+      description: 获取部署记录详情
+      parameters:
+      - description: 部署ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 获取部署记录
+      tags:
+      - 发布管理
+  /api/v1/deployments/{id}/rollback:
+    post:
+      description: 回滚部署
+      parameters:
+      - description: 部署ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 回滚部署
+      tags:
+      - 发布管理
+  /api/v1/envs:
+    get:
+      description: 查询环境列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 查询环境列表
+      tags:
+      - 应用环境
+    post:
+      consumes:
+      - application/json
+      description: 创建应用环境
+      parameters:
+      - description: 环境信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateEnvCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 创建应用环境
+      tags:
+      - 应用环境
+  /api/v1/releases:
+    post:
+      consumes:
+      - application/json
+      description: 创建发布计划
+      parameters:
+      - description: 发布计划信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateReleaseCommand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 创建发布计划
+      tags:
+      - 发布管理
+  /api/v1/releases/{id}/execute:
+    post:
+      description: 执行发布计划
+      parameters:
+      - description: 发布计划ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: 执行发布计划
+      tags:
+      - 发布管理
   /auth/change-password:
     post:
       consumes:
