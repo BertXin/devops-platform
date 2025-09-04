@@ -11,7 +11,7 @@ import (
 
 // Bean常量
 const (
-	BeanAppService    = domain.BeanService       // 应用管理服务Bean名称
+	BeanAppService    = domain.BeanAppService    // 应用管理服务Bean名称
 	BeanDeployService = domain.BeanDeployService // 部署服务Bean名称
 	BeanAppQuery      = domain.BeanAppQuery      // 应用查询服务Bean名称
 )

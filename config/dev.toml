@@ -1,9 +1,9 @@
 [database]
-host = "127.0.0.1"
+host = "192.168.80.50"
 port = 3306
 user = "root"
-password = "root"
-db = "apexrift-platform"
+password = "123456"
+db = "devops_platform"
 max_open = 5
 max_idle = 2
 

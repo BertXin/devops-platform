@@ -35,18 +35,17 @@ func (c *AuthController) injectRouting(getBean func(string) interface{}) {
 		logrus.Panicf("初始化时获取[%s]失败", web.BeanGinEngine)
 		return
 	}
+	// 健康检查路由
+	router.GET("/health", func(c *gin.Context) {
+		web.HealthCheck(c, domain.BeanModuleName)
+	})
 
 	// 认证相关路由组
-	authGroup := router.Group("/auth")
+	authGroup := router.Group("/api/v1/auth")
 	{
 		// 无需认证的路由
 		authGroup.POST("/login", c.Login)
 		authGroup.POST("/register", c.Register)
-
-		// 健康检查路由
-		authGroup.GET("/health", func(c *gin.Context) {
-			web.HealthCheck(c, domain.BeanModuleName)
-		})
 
 		// 需要认证的路由
 		protectedGroup := authGroup.Group("")
@@ -57,5 +56,5 @@ func (c *AuthController) injectRouting(getBean func(string) interface{}) {
 	}
 
 	// 添加到忽略URL列表
-	web.AddIgnoreUrls("/auth/login", "/auth/register", "/auth/health")
+	web.AddIgnoreUrls("/api/v1/auth/login", "/api/v1/auth/register", "/health")
 }

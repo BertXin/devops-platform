@@ -36,8 +36,10 @@ func (c *DepartmentController) injectRouting(getBean func(string) interface{}) {
 		return
 	}
 
+	// API前缀
+	apiPrefix := "/api/v1/organization"
 	// 组织机构路由组
-	organizationGroup := router.Group("/api/v1/organization")
+	organizationGroup := router.Group(apiPrefix)
 	// 添加认证中间件
 	organizationGroup.Use(middleware.JWTAuth())
 
